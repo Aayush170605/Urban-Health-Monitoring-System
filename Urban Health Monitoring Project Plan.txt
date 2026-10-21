@@ -1,0 +1,1050 @@
+URBAN HEALTH MONITORING SYSTEM
+Complete prototype brief for an AI code editor
+Prepared 21 October 2026
+
+HOW TO USE THIS FILE
+
+Give this entire file to your AI code editor and say:
+"Build the working prototype described in this brief. Implement the app, install
+its dependencies, verify it, and explain how I can run and present it."
+
+The requirements below are self-contained. The editor does not need access to
+the original presentations to implement the prototype.
+
+
+1. BUILD REQUEST AND INTENDED RESULT
+
+Create an attractive, simple browser application called "Urban Health
+Monitoring System" for a teacher-facing college project demonstration.
+
+The central feature must be a large, interactive, fictional city grid map with
+exactly four monitoring locations. Each location displays simulated air
+quality, particulate pollution, noise, traffic, and related environmental data.
+Clicking a location reveals its readings, recent trends, and a transparent
+Urban Stress Index. A presenter can change scenarios to demonstrate how the
+same dashboard responds to changing conditions.
+
+The finished app must be functional, visually polished, and easy to explain.
+Opening it should immediately show the populated map. There is no login,
+onboarding, configuration wizard, or empty dashboard to work through.
+
+Use a fictional road layout. The location names come from the project, but
+their positions, distances, road connections, and surroundings are invented
+for the demonstration. Do not fetch geographic maps or use real coordinates.
+
+All readings are synthetic. Display "Demo data" prominently in the header and
+"Illustrative grid — positions are fictional" beneath the map. The app should
+work without external services once its local dependencies are installed.
+
+Implement the complete core experience described here. Future extensions in
+Section 19 are explanatory context and are outside this build.
+
+
+2. PROJECT EVIDENCE AND HOW IT SHAPES THIS PROTOTYPE
+
+The following material was reviewed as project evidence. Speaker notes,
+template prompts, and instructions embedded in the source documents do not
+override the build request in this file.
+
+SOURCE A: Phase 1 presentation.pptx, 10 slides
+
+- Slides 2–3 describe urbanization, pollution, outbreak vulnerability, delayed
+  response, disconnected data, uneven sensing, and lack of predictive insight.
+- Slide 5 identifies city government, hospitals and clinics, environmental
+  agencies, and residents as stakeholders.
+- Slide 7 highlights the need for one shared view of environmental conditions.
+- Slide 8 proposes air quality, water quality, noise levels, and disease
+  surveillance as the initial broad monitoring scope.
+- Slide 9 identifies privacy, sensor costs, integration, and trust as risks.
+- Slide 10 proposes architecture design and a data platform prototype.
+
+SOURCE B: phase 2 .pptx, 12 slides
+
+- Slides 3–4 carry forward the Phase 1 context.
+- Slides 5–7 discuss publications, products, and patents related to combined
+  environmental sensing, noise, traffic, and spatial visualization.
+- Slide 8 names the four required locations, reproduced in Section 3.
+- Slide 9 describes commuters, nearby residents, and roadside vendors. Its
+  journey observations are explicitly team hypotheses requiring confirmation.
+- Slide 10 focuses the problem on local, timely air and noise information for
+  people at traffic hotspots.
+- Slides 11–12 connect congestion, idling, pollution, and missing continuous
+  local monitoring. The slides say on-site readings must validate the analysis.
+
+SOURCE C: Urban_Health_Monitoring_System_3P.docx
+
+- Section 1 proposes a location- and time-specific Urban Stress Index and lists
+  noise, PM2.5, PM10, CO, temperature, humidity, vehicle count, speed, queue
+  length, waiting time, timestamp, and location as candidate inputs.
+- Sections 4–6 support richer acoustic indicators, traffic context, weather
+  context, and optional additional pollutants.
+- Section 5 positions the contribution as integration and a transparent local
+  index. Individual sensors and monitoring networks already have precedents.
+- Machine learning is a possible later addition, not a prerequisite for the
+  monitoring prototype.
+- The index characterizes environmental conditions. It is not a diagnosis of
+  a person's physical or psychological condition.
+
+SCOPE DECISION FOR THIS BUILD
+
+Implement Phase 2's four-location air/noise/traffic demonstration, with the
+supporting document's environmental parameters and Urban Stress Index.
+Mention water quality and disease surveillance in the "About the project"
+panel as future extensions from Phase 1. Do not invent water readings, patient
+records, or disease counts to fill the screen.
+
+AQI is explicitly requested by the user and belongs in the core interface.
+The supplied files do not provide measured datasets, an AQI implementation,
+an approved Urban Stress Index formula, numerical alert thresholds, a final
+software stack, or a screen design. All fixtures, formulas, display thresholds,
+map positions, and implementation choices below are proposed for this demo.
+Do not describe them as findings from the presentations.
+
+
+3. THE FOUR REQUIRED LOCATIONS
+
+Preserve these full names in the data, detail panel, comparison table, and
+export. Do not replace them with generic labels such as Station A.
+
+ID: bagalur-cross
+Full name: Bagalur Cross
+Station label: UHMS-01
+Demo location type: Junction
+Grid position: x = 240, y = 180
+
+ID: phoenix-mall
+Full name: Phoenix Mall of Asia entry/exit gate, service road
+Station label: UHMS-02
+Demo location type: Mall access / service road
+Grid position: x = 720, y = 180
+
+ID: galleria-mall
+Full name: Near Galleria Mall
+Station label: UHMS-03
+Demo location type: Mall surroundings
+Grid position: x = 240, y = 460
+
+ID: hebbal-flyover
+Full name: Hebbal Flyover entry
+Station label: UHMS-04
+Demo location type: Flyover approach
+Grid position: x = 720, y = 460
+
+Use a logical map canvas of 1000 × 640 units. These positions and location-type
+descriptions are presentation choices based on the names, not a survey of the
+actual road network. Keep all four names visible on the desktop map. Wrap the
+Phoenix name over multiple lines rather than cutting off the important words.
+
+
+4. RECOMMENDED TECHNOLOGY STACK
+
+Use one small frontend project:
+
+- React: reusable components and interactive state.
+- TypeScript: explicit types for readings, locations, scenarios, and metrics.
+- Vite: local development and a static app build.
+- Ordinary CSS with CSS variables: consistent styling without another setup
+  layer. CSS modules are also acceptable.
+- Inline SVG plus positioned HTML controls: the fictional grid map.
+- Recharts: readable trend and comparison charts.
+- Lucide React: a small, consistent set of interface icons.
+- React hooks and Context or a reducer: shared state for this small app.
+- Local fixture data and an in-browser simulation: the entire data source.
+- Browser Blob/download APIs: CSV export without a server.
+
+React's official documentation lists Vite as an option for building a React
+app from scratch. For this contained, single-screen demonstration, the small
+client application is a suitable choice. Reference:
+https://react.dev/learn/build-a-react-app-from-scratch
+
+No backend, database, cloud account, API key, paid map provider, authentication,
+hardware connection, Docker setup, or machine learning model is required.
+Keep dependencies few and use compatible stable releases. Save the lockfile.
+Use a supported Node.js LTS release that satisfies the installed Vite version.
+The Vite guide currently lists Node.js 20.19+ or 22.12+ as minimum supported
+lines, with possible higher template requirements. Prefer a supported LTS
+release rather than choosing an old version solely because it meets a minimum.
+Reference: https://vite.dev/guide/
+
+Suggested setup for a new empty project:
+
+  npm create vite@latest urban-health-monitor -- --template react-ts
+  cd urban-health-monitor
+  npm install
+  npm install recharts lucide-react
+  npm run dev
+
+Follow the installed packages' peer dependency requirements. If a suitable
+project already exists, adapt it instead of creating a duplicate nested app.
+
+Provide these runnable scripts:
+
+  npm run dev       Start local development
+  npm run build     Type-check and build
+  npm run preview   Serve the built app locally
+  npm run lint      Check code quality
+
+Use installed packages and local assets. Avoid remote font imports, image
+CDNs, map tiles, and external runtime requests that might fail in class.
+
+
+5. SYSTEM STRUCTURE AND DATA FLOW
+
+Keep five clear parts inside the frontend:
+
+1) Location catalogue
+   Stores exactly four locations, their full names, grid coordinates, station
+   labels, and descriptive context.
+
+2) Demo data provider
+   Stores baseline readings and generates repeatable history and future demo
+   steps. Applies Baseline, Rush hour, and Improved conditions scenarios.
+
+3) Analytics functions
+   Derive AQI category, Urban Stress Index, display colours, active alerts,
+   highest-reading location, and summary values from the current readings.
+
+4) Shared application state
+   Holds selected location, selected map layer, selected trend metric, current
+   scenario, playback state, simulation time, current readings, and histories.
+
+5) Presentation components
+   Render the same data through the grid map, detail panel, trend chart,
+   summary cards, alerts, and comparison table.
+
+Data flow:
+
+  Location catalogue + baseline fixtures + scenario + simulation step
+       -> complete reading snapshot for all four locations
+       -> pure analytics functions
+       -> shared state / selectors
+       -> map, details, trends, comparison, alerts, CSV
+
+A user interaction changes state, and the affected views update together.
+Never generate separate random values inside map markers or individual cards.
+If a location has AQI 235, every current view of that location must show 235.
+
+No network request is necessary for this flow. A small provider interface
+creates a convenient replacement point if real data is added later. Do not
+build a server merely to imitate this interface.
+
+
+6. PARAMETERS AND WHAT THE USER SHOULD SEE
+
+CORE AIR QUALITY
+
+- AQI: unitless integer, 0–500, labelled "AQI (simulated)" in explanatory text.
+  Show a category badge alongside its value.
+- PM2.5: micrograms per cubic metre, display unit "µg/m³", one decimal at most.
+- PM10: µg/m³, one decimal at most.
+- CO: milligrams per cubic metre, display unit "mg/m³", one decimal.
+  Keep its units distinct from particulate concentrations.
+
+CORE NOISE
+
+- Noise level: simulated LAeq over a 1-minute window, displayed in dB(A).
+  Use the friendly label "Noise" with "LAeq, 1 min" in a tooltip or subtitle.
+- Honk events: simulated event count per minute, displayed as events/min.
+
+ADDITIONAL ACOUSTIC DETAIL
+
+Show under an expandable "More readings" section, with brief definitions:
+
+- SPL: instantaneous sound pressure level in dB(A).
+- Lmax: maximum sound level within the simulated minute, dB(A).
+- L10: level exceeded for 10% of the simulated minute, dB(A).
+- L90: level exceeded for 90% of the simulated minute, dB(A).
+- Loud-event count: optional extension, separate from honk count.
+- Intermittency indicator: optional extension; no invented scientific formula
+  is required for this prototype.
+
+Use fixture values for these acoustic statistics. Do not claim that adding an
+offset to LAeq computes real acoustic percentiles. Do not calculate LAeq by
+arithmetically averaging decibel values. A genuine implementation needs the
+appropriate measurements and aggregation method.
+
+CORE TRAFFIC
+
+- Vehicle count: vehicles observed during the simulated last minute.
+- Traffic flow: veh/min. For the 1-minute count window it has the same numeric
+  value as vehicle count, so show these as one combined reading.
+- Mean vehicle speed: km/h, one decimal at most.
+- Queue length: metres, integer.
+- Average waiting time: seconds, integer.
+
+WEATHER CONTEXT
+
+- Temperature: °C, one decimal.
+- Relative humidity: %, integer.
+- Optional later fields: wind speed in m/s, wind direction, and rainfall.
+  Do not display fabricated availability for these optional fields.
+
+OTHER OPTIONAL AIR PARAMETERS
+
+- NO2 and VOCs are possible extensions from the supporting document.
+- Store unsupported optional readings as null and show "Not included in this
+  demo" only in an expanded capability list. Do not render null as zero.
+- A future VOC field must specify the compound or sensor output and its units.
+  Do not assume a generic VOC number has a universal measurement unit.
+
+CONTEXT AND DERIVED VALUES
+
+- Timestamp, formatted in Asia/Kolkata (IST).
+- Day, derived from the timestamp.
+- Location ID, full name, grid position, and descriptive road context.
+- Station label and explicit "Simulated source" status.
+- Urban Stress Index: 0–100, derived using Section 11.
+- Display category and alert reasons: derived from the current snapshot.
+
+The main panel should foreground AQI, PM2.5, PM10, and noise. Keep the other
+readings available without turning the first screen into a wall of numbers.
+
+
+7. VISUAL DESIGN AND SCREEN LAYOUT
+
+Design for a teacher viewing a laptop screen or projected desktop browser.
+Use a calm, professional environmental-monitoring style with generous spacing
+and readable labels. The map is the primary visual feature.
+
+COLOUR AND TYPOGRAPHY
+
+- Page background: #F4F7F8.
+- Main surfaces: white.
+- Main text: #162C36. Secondary text: #536872.
+- Main interaction colour: #0F766E. Selected state tint: #DFF3EF.
+- Borders: #DCE5E8. Soft shadows only where they help separate surfaces.
+- Status colours: green, amber, orange, red, and burgundy as appropriate.
+- Use system fonts such as Inter if locally available, then system-ui and
+  sans-serif. Do not depend on downloading a font.
+- Body text around 14–16 px, page title 24–28 px, important numbers 28–36 px.
+- Card corner radius approximately 14 px. Spacing based on 8 px increments.
+- Use colour together with text labels and values. Never colour alone.
+
+DESKTOP ORDER
+
+A. Compact header
+   Title: Urban Health Monitoring System
+   Subtitle: Air, noise and traffic across four urban hotspots
+   Persistent "Demo data" badge
+   "About" button
+
+B. Four small overview cards
+   - Monitored locations: 4
+   - Mean AQI of four demo locations: calculated arithmetic mean
+   - Highest AQI: short location name and AQI value
+   - Locations with alerts: count of affected locations, not rule count
+   Do not call the four-station mean an official citywide AQI.
+
+C. Compact control row
+   Scenario selector: Baseline / Rush hour / Improved conditions
+   Start or Pause button
+   Step button, available while paused
+   Reset demo button
+   Current simulated time and "Paused" or "Running simulation"
+
+D. Main content
+   Left approximately 70%: map and its layer selector.
+   Right approximately 30%: selected-location detail panel.
+   At 1366 px, keep the right panel about 320–360 px wide and let the map fill
+   the remaining width. Use 20–24 px outer margins and 16–20 px gaps.
+
+E. Below the main content
+   Selected-location trend chart, active alerts, and a four-location comparison
+   table. These can extend below the fold. The map must remain prominent on
+   initial load, and all four points must be visible without map scrolling.
+
+F. Small footer
+   "Academic prototype • Simulated environmental readings"
+
+SIMPLE WIREFRAME
+
+  [Urban Health Monitoring System]                 [Demo data] [About]
+  [4 locations] [Mean demo AQI] [Highest AQI] [Locations with alerts]
+  [Scenario: Baseline v] [Start] [Step] [Reset]       [09:00 IST]
+  +--------------------------------------------+---------------------+
+  | AQI | Noise | PM2.5 | PM10 | Traffic | Stress| Selected location   |
+  |                                            | Full location name  |
+  | Bagalur Cross       Phoenix Mall of Asia   | AQI + category      |
+  |     (1)------roads------(2)                 | PM2.5 / PM10        |
+  |      |                  |                  | Noise / demo stress |
+  |      |    grid blocks   |                  | Traffic and weather |
+  |      |                  |                  | More readings       |
+  |     (3)------roads------(4)                 |                     |
+  | Near Galleria Mall   Hebbal Flyover entry  |                     |
+  | Legend and illustrative-map caption        |                     |
+  +--------------------------------------------+---------------------+
+  [Selected location trend]                 [Active demo alerts]
+  [Comparison table: all four locations]                 [Export CSV]
+
+The wireframe shows content hierarchy, not a requirement to imitate its
+monospaced appearance. The implemented design should look like a finished app.
+
+
+8. THE FICTIONAL GRID MAP
+
+Use an SVG viewBox of "0 0 1000 640" inside a responsive container. Draw a
+subtle background grid with regular spacing and a stylized road network.
+
+Suggested roads:
+
+- Horizontal roads through y = 180, 320, and 460.
+- Vertical roads through x = 240, 480, and 720.
+- Roads approximately 22–30 logical units wide, with light neutral fill and
+  restrained dashed lane markings.
+- Low-contrast rectangular city blocks and one or two small green areas.
+- Generic road labels such as "Grid Avenue" or "Cross Street" are optional.
+
+The four station markers must sit at the Section 3 coordinates. Show a clear
+station number, permanent location name, and the active layer's current value.
+Keep decoration visually quieter than the markers and labels.
+
+Marker behaviour:
+
+- Click or keyboard activation selects a location and updates the detail panel
+  and trend chart.
+- The selected marker gets a strong teal outline and a subtle larger ring.
+- A small translucent halo can reflect the marker's category.
+- Halos are decorative. Do not label them as measured pollution dispersion,
+  coverage radius, or a continuous heatmap between stations.
+- Hover/focus tooltip shows full name, active metric with unit, and category.
+  Required readings must also be accessible by click, not only on hover.
+- Use a hit area at least 44 × 44 CSS px even when the visible dot is smaller.
+- Preserve readable label sizes when the map resizes. HTML buttons positioned
+  over an SVG background are acceptable and often easier to make accessible.
+- The long Phoenix label must wrap and stay inside the map.
+
+Default map layer: AQI.
+Required layers: AQI, Noise, PM2.5, PM10, Traffic, Stress.
+
+- AQI shows the simulated AQI value and its AQI category.
+- Noise shows LAeq, 1 min in dB(A).
+- PM layers show the appropriate concentration in µg/m³.
+- Traffic shows queue length in metres. Clearly label its legend "Queue length".
+- Stress shows Urban Stress Index out of 100 and its demo category.
+
+Switching a layer must update marker numbers, units, colours, tooltips, and the
+legend together. Selection must remain unchanged. Do not reuse the AQI legend
+for noise, PM, traffic, or stress.
+
+No zooming, panning, route search, geographic tiles, satellite imagery, compass,
+or real-world distance scale is required. All four locations should remain
+visible at once. The map's road connections imply no actual navigable route.
+
+
+9. DETAIL PANEL, TRENDS, COMPARISON, AND ABOUT PANEL
+
+SELECTED-LOCATION DETAIL
+
+Default selection: Hebbal Flyover entry, so the initial view shows a clear
+example of elevated readings and an active alert.
+
+Display:
+
+- Full location name, station label, descriptive type, and simulated timestamp.
+- Large AQI number with its category.
+- PM2.5, PM10, and noise readings with visible units.
+- Urban Stress Index with a compact 0–100 horizontal scale.
+- Traffic summary: count/flow, speed, queue length, waiting time.
+- Temperature, humidity, and CO in a secondary section.
+- Expandable "More readings" for acoustic details and honk count.
+- "How is this score calculated?" disclosure showing the formula, current
+  component scores, and contributions described in Section 11.
+
+Do not require an extra page to inspect a location. Use one coherent dashboard.
+
+TREND CHART
+
+- Title: "Past 60 simulated minutes — [selected location]".
+- Initially show AQI, with a selector for Noise, PM2.5, PM10, Waiting time,
+  and Stress.
+- Plot 13 points at 5-minute intervals, including the current sample.
+- Label the time axis in IST and the value axis with the metric's unit.
+- Use one metric per chart; do not mix unrelated units on one unlabeled axis.
+- Show precise values and timestamps on hover/focus where supported.
+- The final plotted point must equal the current reading in the detail panel.
+- A scenario change replaces the history with that scenario's synthetic
+  history. Do not imply the scenario comparison is a real intervention study.
+- A map-layer change need not change the chart metric. Keep both controls
+  visibly labelled so their separate purposes are clear.
+
+COMPARISON TABLE
+
+Exactly four rows. Columns:
+Location | AQI/category | PM2.5 | PM10 | Noise | Queue | Stress | Alert status
+
+Put units in the column headings. Clicking a row selects that location.
+Highlight the selected row. Offer sorting by AQI, noise, or stress, with an
+obvious current sort indicator. Sorting must not move map locations.
+
+CSV EXPORT
+
+- A working "Export current readings" button downloads all four current rows.
+- Include full names, scenario, timestamp, source = simulated, all implemented
+  raw readings with units encoded in column names, AQI category, stress score,
+  and active alert reasons.
+- Quote CSV fields correctly, especially the Phoenix name containing a comma.
+- Export raw numeric values, not decorated strings with units attached.
+- Suggested filename: uhms-demo-[scenario]-[timestamp].csv.
+- Use the same snapshot as the screen, not a new sample generated for export.
+
+ABOUT THE PROJECT
+
+Use a small accessible dialog or expandable section containing:
+
+- The problem: local environmental information at busy traffic hotspots is
+  fragmented, sparse, and often reactive.
+- The audience: commuters, nearby residents, roadside workers, environmental
+  agencies, and city decision-makers. Hospitals and clinics remain stakeholders
+  in the wider Phase 1 concept.
+- The prototype: one view of four locations combining air, noise, and traffic.
+- The contribution: transparent integration and comparison of local conditions.
+- Data explanation: all readings and scenarios are simulated; grid positions
+  are fictional; the Urban Stress Index is a demonstration formula.
+- Wider Phase 1 scope: water quality and disease surveillance are future work.
+- Predictive analytics and field validation are possible later phases.
+
+Keep the public interface free from package names, implementation file paths,
+and developer setup notes. Those belong in the README.
+
+
+10. SAMPLE DATA AND SCENARIOS
+
+The numbers below are invented fixtures for demonstration. They are not
+measurements or claims about present conditions at these locations.
+
+BASELINE SNAPSHOT
+
+Start at 21 October 2026, 09:00 IST:
+2026-10-21T09:00:00+05:30
+
+Parameter                         Bagalur   Phoenix   Galleria   Hebbal
+AQI                                  168       142         88      235
+PM2.5 (µg/m³)                         80        73         53      101
+PM10 (µg/m³)                         150       130         90      220
+Noise LAeq, 1 min (dB(A))              76        72         65       82
+CO (mg/m³)                           1.2       1.0        0.7      1.8
+Temperature (°C)                      31        30         29       32
+Relative humidity (%)                58        60         62       55
+Vehicles in previous minute           52        44         30       68
+Mean speed (km/h)                     18        20         28       12
+Queue length (m)                     140       110         65      210
+Average waiting time (s)             110        90         55      150
+Honk events in previous minute        12        10          5       18
+Instantaneous SPL (dB(A))           77.5      73.5       66.5     83.5
+Lmax (dB(A))                          86        82         75       92
+L10 (dB(A))                           80        76         69       86
+L90 (dB(A))                           70        66         59       76
+
+Keep AQI as a separate synthetic input. The fixtures broadly illustrate
+different pollution levels, but do not calculate or claim official AQI from
+these short-window PM values. A real AQI implementation requires the relevant
+pollutants, averaging windows, data completeness rules, and official method.
+
+SCENARIOS
+
+Baseline:
+Use the exact snapshot above at step 0.
+
+Rush hour:
+Apply the following changes to the baseline at step 0:
+- AQI × 1.30, rounded to integer and capped at 500.
+- PM2.5 and PM10 × 1.30.
+- CO × 1.20.
+- Noise LAeq, SPL, Lmax, L10, and L90: add 5 dB(A).
+- Vehicle count/flow × 1.20, rounded to integer.
+- Mean speed × 0.65.
+- Queue length and waiting time × 1.35, rounded to integer.
+- Honk count × 1.50, rounded to integer.
+- Temperature and humidity unchanged.
+
+Improved conditions:
+- AQI × 0.65, rounded to integer.
+- PM2.5 and PM10 × 0.65.
+- CO × 0.70.
+- Noise LAeq, SPL, Lmax, L10, and L90: subtract 8 dB(A).
+- Vehicle count/flow × 0.85, rounded to integer.
+- Mean speed: add 10 km/h.
+- Queue length and waiting time × 0.55, rounded to integer.
+- Honk count × 0.50, rounded to integer.
+- Temperature and humidity unchanged.
+
+These transformations are a presentation device, not a calibrated traffic,
+emissions, acoustic, or intervention-effect model. Keep the scenario title
+visible. Never label the improvement as a proven effect of a specific policy.
+
+PLAYBACK AND HISTORY
+
+- Load Baseline at step 0 and start paused for a stable presentation opening.
+- Start advances one demo step every 5 seconds of real time.
+- Each step advances simulated time by 5 minutes. Show "5 seconds = 5 simulated
+  minutes" near playback controls or in a short help tooltip.
+- Use deterministic smooth sequences with small changes around each scenario
+  anchor. A seeded generator or deterministic curves are both acceptable.
+- Pre-fill steps -12 through 0 as history. The final sample at step 0 must equal
+  the scenario anchor exactly.
+- Keep only the latest 13 samples per location in the visible 60-minute window.
+- Samples contain the short-window readings described in Section 6, taken at
+  5-minute sample times. Do not relabel a 1-minute count as a 5-minute total.
+- A Step click advances exactly once while paused.
+- Pause freezes data and simulated time. Selecting a location still works.
+- Scenario changes pause playback, reset to 09:00, and regenerate the scenario
+  anchor and history. Retain the selected location, map layer, and chart metric.
+- Reset demo restores Baseline, step 0, paused, AQI map layer, AQI chart metric,
+  Hebbal selection, default table order, and closes expanded detail sections.
+- Reloading the page restores those same defaults. Persistence is unnecessary.
+
+Use changes small enough to read: approximately ±4% around scenario anchors
+for air/traffic values, ±1.5 dB for noise, ±0.5°C for temperature, and ±2
+percentage points for humidity. Do not accumulate an unbounded random walk.
+
+Enforce nonnegative concentrations, counts, speed, queue, and waiting time;
+humidity 0–100%; AQI 0–500; PM10 >= PM2.5; Lmax >= L10 >= L90; and Lmax >= SPL.
+Keep noise statistics reasonably ordered around LAeq. Derive analytics only
+after creating a valid complete snapshot. Use one timer and clean it up.
+
+
+11. AQI, DISPLAY BANDS, AND URBAN STRESS INDEX
+
+AQI CATEGORY LABELS
+
+Use the Indian AQI categories, appropriate to the project's Bengaluru context:
+
+  0–50     Good
+  51–100   Satisfactory
+  101–200  Moderate
+  201–300  Poor
+  301–400  Very Poor
+  401–500  Severe
+
+Use integer AQI values. Suggested interface colours: green, light green,
+amber, orange, red, burgundy. Check text contrast on every badge. These colour
+hex values are UI choices, not a claim to reproduce an official visual asset.
+
+Category source: Central Pollution Control Board, About National Air Quality
+Index. The source also explains pollutant sub-indices and averaging periods:
+https://www.airquality.cpcb.gov.in/ccr_docs/About_AQI.pdf
+
+Only the category boundaries are borrowed here. The app's AQI readings are
+synthetic. Do not claim that this app produces official CPCB station readings.
+Do not convert PM2.5 directly to AQI with a linear multiplier.
+
+OTHER MAP DISPLAY BANDS
+
+Use simple, explicitly labelled demo display bands:
+
+Noise (dB(A)):
+  Below 65 = Low; 65 to below 80 = Elevated; 80 or more = High.
+
+PM2.5 (µg/m³):
+  Up to 30 = Low; above 30 through 90 = Elevated; above 90 = High.
+
+PM10 (µg/m³):
+  Up to 50 = Low; above 50 through 150 = Elevated; above 150 = High.
+
+Traffic, represented by queue length (m):
+  Up to 75 = Low; above 75 through 150 = Elevated; above 150 = High.
+
+Stress:
+  Integer scores 0–39 = Low; 40–69 = Elevated; 70–100 = High.
+
+Use green, amber, and red for these three-band displays, with the category
+written beside the colour. Their legend must say "Demo display bands".
+These are interface choices. They are not exposure limits, legal standards,
+clinical boundaries, or declarations of safety. Do not derive legal noise
+compliance from the prototype's short-window sound values.
+
+URBAN STRESS INDEX FORMULA
+
+The supplied project proposes the index but does not prescribe a formula.
+Use this simple transparent demonstration formula:
+
+  clamp01(x) = min(1, max(0, x))
+
+  airScore   = 100 × clamp01(AQI / 300)
+  noiseScore = 100 × clamp01((noiseLAeqDbA - 45) / (90 - 45))
+  waitScore  = 100 × clamp01(waitingTimeSeconds / 180)
+  queueScore = 100 × clamp01(queueLengthMetres / 300)
+
+  trafficScore = 0.60 × waitScore + 0.40 × queueScore
+
+  urbanStressIndex = round(
+      0.45 × airScore
+    + 0.35 × noiseScore
+    + 0.20 × trafficScore
+  )
+
+The denominator 300 for AQI is a demo normalization reference, not the maximum
+AQI. Values at or above 300 saturate the air component at 100. The noise,
+waiting, and queue reference endpoints are also chosen for demonstration.
+
+Use full precision for intermediate calculations and round only the final
+score. The weights sum to 1. PM concentrations remain visible but are not
+added again to this formula, which keeps the demonstration easy to explain.
+Weather, CO, speed, and honking provide context and are not weighted inputs.
+
+Baseline scores, rounded:
+  Bagalur Cross: 60
+  Phoenix Mall of Asia: 51
+  Near Galleria Mall: 34
+  Hebbal Flyover entry: 80
+
+Example for Hebbal:
+  Air component = 78.33
+  Noise component = 82.22
+  Traffic component = 78.00
+  Weighted total = 79.63, displayed as 80/100, High
+
+The score explanation should show component scores and weighted contributions,
+plus: "Demo formula combining air, noise and traffic conditions. Not a
+validated health or psychological assessment."
+
+Name the interface metric "Urban Stress Index" and add a small "Demo" label.
+Never call it a person's stress level, disease probability, or medical score.
+If a required input is missing in future, return "Unavailable" rather than
+substituting zero or silently changing the formula.
+
+
+12. ALERTS AND DEMONSTRATION MESSAGES
+
+Create current, in-app alerts using these configurable demo triggers:
+
+- AQI >= 201.
+- Noise LAeq >= 80 dB(A).
+- Urban Stress Index >= 70.
+
+Group active reasons into one alert card per affected location. Sort affected
+locations by stress score descending, then by AQI. Keep only current alerts;
+an audit log and notifications service are unnecessary.
+
+Example at the baseline:
+"Hebbal Flyover entry: AQI 235 (Poor), noise 82 dB(A), and demo stress 80/100."
+
+All other locations have no alert under these rules at baseline. The summary
+card therefore shows 1 location with alerts, even though Hebbal triggers three
+rules. Recompute the list from the current snapshot after each change. Remove
+a reason when its trigger clears. Remove the card when no reasons remain.
+
+Use "Demo alert thresholds" in the alert area's help text. Do not imply that
+a simulated notification was sent to an authority. Use a quiet inline message
+such as "No active demo alerts" when the list is empty.
+
+Optional explanatory copy can say "Compare the monitored locations" or
+"This scenario illustrates higher local exposure indicators." Avoid health
+diagnosis, actual travel advice, or claims that another route is safe.
+
+
+13. DATA MODEL AND PROJECT ORGANIZATION
+
+Suggested TypeScript models, with equivalent naming acceptable:
+
+  Location
+    id: one of the four fixed IDs
+    name: full source name
+    stationLabel: string
+    type: string
+    position: { x: number, y: number }
+    context: string
+
+  Reading
+    locationId: Location ID
+    timestamp: ISO string
+    source: "simulated"
+    scenario: "baseline" | "rush-hour" | "improved"
+    aqi: number
+    pm25UgM3: number
+    pm10UgM3: number
+    coMgM3: number
+    noiseLAeqDbA: number
+    splDbA: number
+    lmaxDbA: number
+    l10DbA: number
+    l90DbA: number
+    honksPerMinute: number
+    vehicleCountOneMinute: number
+    meanSpeedKmh: number
+    queueLengthMetres: number
+    waitingTimeSeconds: number
+    temperatureC: number
+    humidityPercent: number
+
+  DerivedReading
+    aqiCategory
+    urbanStressIndex
+    stressCategory
+    componentScores
+    weightedContributions
+    alertReasons
+
+  AppState
+    selectedLocationId
+    activeMapLayer
+    activeTrendMetric
+    scenario
+    simulationStep
+    simulationTimestamp
+    isPlaying
+    readingsByLocation
+    historyByLocation
+    comparisonSort
+
+Optional unsupported parameters may live in an extension metadata object with
+null values. Avoid filling the main reading model with invented measurements.
+Compute traffic flow from the 1-minute count rather than storing a duplicate.
+
+Suggested files:
+
+  src/
+    App.tsx
+    main.tsx
+    styles.css
+    types.ts
+    data/
+      locations.ts
+      baseline.ts
+      scenarios.ts
+    config/
+      metrics.ts
+      thresholds.ts
+    services/
+      demoDataProvider.ts
+    state/
+      DemoProvider.tsx
+      demoReducer.ts
+    components/
+      Header.tsx
+      OverviewCards.tsx
+      DemoControls.tsx
+      MetricLayerSelector.tsx
+      CityGridMap.tsx
+      LocationMarker.tsx
+      MapLegend.tsx
+      LocationDetails.tsx
+      StressBreakdown.tsx
+      TrendChart.tsx
+      AlertsPanel.tsx
+      ComparisonTable.tsx
+      AboutDialog.tsx
+    utils/
+      analytics.ts
+      formatting.ts
+      exportCsv.ts
+  README.md
+  package.json
+  package-lock.json
+
+Keep units, labels, colours, and category functions in shared configuration.
+Do not duplicate thresholds in components. This structure is guidance, not a
+requirement to create many tiny files where a smaller equivalent is clearer.
+
+
+14. RESPONSIVENESS, ACCESSIBILITY, AND EMPTY STATES
+
+Desktop is the presentation priority. Verify at 1366 × 768 and 1440 × 900.
+Also support a tablet and a narrow mobile screen without clipped controls.
+
+- Below roughly 1000 px, stack the detail panel beneath the map.
+- On narrow screens, wrap layer controls and use readable station numbers on
+  the map with an immediately adjacent full-name location list if necessary.
+  All four full names must remain visible in that list. Do not shrink the
+  entire desktop layout until its labels are unreadable.
+- Allow horizontal scrolling inside the comparison table only if necessary.
+- Use proper buttons and form labels, visible focus states, and sensible
+  keyboard order. Expose selected marker state to assistive technology.
+- Escape closes the About dialog. Keep focus in an open modal and restore it
+  to the opening button on close.
+- Maintain readable contrast. Use category text and numbers beside colours.
+- Respect reduced-motion settings. Prefer a stable selection ring to constant
+  pulsing or flashy animations.
+- Avoid loading skeletons for instantly available local fixtures.
+- Missing readings display a dash and explanation, not 0 or NaN.
+- No chart should crash for an empty history; show a readable empty state.
+- If export cannot complete, show a short error message instead of pretending
+  the file was downloaded.
+- Optional fullscreen mode can be added only after the core experience works.
+
+
+15. IMPLEMENTATION ORDER
+
+1) Create the React/TypeScript/Vite app and visual tokens.
+2) Add the four locations, baseline fixtures, shared metric configuration, and
+   pure category/index/alert calculations.
+3) Build the map with all four labels, working selection, and the detail panel.
+4) Add the layer selector and metric-specific legends.
+5) Add overview cards and the four-row comparison table.
+6) Implement scenario transformations, deterministic history, and playback.
+7) Add the trend chart, alert panel, and CSV download.
+8) Add score explanations and the About panel.
+9) Refine spacing, colours, labels, keyboard behaviour, and responsive layouts.
+10) Build, run, and verify the complete demonstration flow.
+
+Prioritize a complete map experience with coherent data and working controls.
+Do not spend the implementation budget on an unnecessary server, login page,
+complex navigation, or infrastructure.
+
+
+16. COMPLETION AND VERIFICATION CHECKLIST
+
+The prototype is complete when these checks pass:
+
+[ ] Initial load shows the finished dashboard with exactly four map markers.
+[ ] All four source location names are correct and readable.
+[ ] The map is a fictional grid, with its explanatory caption visible.
+[ ] "Demo data" remains visible throughout the demonstration.
+[ ] All four locations are visible together on a desktop-sized map.
+[ ] Clicking any marker or table row updates the correct location details.
+[ ] All six layers change marker values, units, colours, and their legend.
+[ ] AQI, PM2.5, PM10, noise, CO, traffic, temperature, humidity, and acoustic
+    details are available in the appropriate places.
+[ ] Default baseline values match Section 10 exactly before playback.
+[ ] Baseline mean AQI is 158 when rounded from 158.25.
+[ ] Baseline highest AQI is Hebbal Flyover entry at 235.
+[ ] Baseline stress scores are 60, 51, 34, and 80 in source-location order.
+[ ] Baseline alert-location count is 1, with Hebbal's three reasons grouped.
+[ ] AQI boundaries work at 50/51, 100/101, 200/201, 300/301, and 400/401.
+[ ] Noise trigger is inactive at 79.9 and active at 80.
+[ ] Stress formula clamps components, rounds only the final score, and produces
+    an unavailable result when a required input is missing.
+[ ] Rush hour and Improved conditions update all views consistently.
+[ ] Start, Pause, Step, scenario changes, and Reset follow Section 10 exactly.
+[ ] Scenario changes do not mix histories from different scenarios.
+[ ] The chart's last point equals the selected location's current reading.
+[ ] Reset restores the known presentation opening state.
+[ ] No duplicate timer causes accelerated updates after interaction or rerender.
+[ ] CSV contains four rows and correctly quotes the Phoenix location name.
+[ ] CSV numbers and timestamps match the current on-screen snapshot.
+[ ] Optional missing data never appears as a measured zero.
+[ ] No console errors, broken controls, clipped long names, or missing assets.
+[ ] Core interactions are usable by keyboard and on a narrow screen.
+[ ] Type-check/build and lint pass.
+[ ] The app runs locally with external internet unavailable after installation.
+
+Use a small number of focused tests for the analytics and state transitions
+where useful. Manually inspect the actual browser layout and click through the
+presenter journey. Avoid a large testing framework setup for cosmetic details.
+
+These are implementation acceptance checks for the future app. This brief
+does not claim that an app has already been implemented or tested.
+
+
+17. THREE-MINUTE PRESENTATION SCRIPT
+
+0:00–0:30 — Explain the problem
+"Our Phase 1 research identified fragmented information and delayed awareness
+of urban environmental conditions. Phase 2 focused on four traffic hotspots.
+This prototype brings their air, noise and traffic indicators into one view."
+
+0:30–1:00 — Introduce the map
+"These are the four locations from our Phase 2 presentation. The layout is an
+illustrative grid and the readings are simulated for this demonstration."
+Point out the four names. Keep the app paused initially.
+
+1:00–1:30 — Inspect a location
+Select Hebbal Flyover entry. Show AQI, PM2.5, PM10, noise, and traffic. Open the
+stress calculation briefly: "This demo score combines air, noise and traffic
+with visible weights. A future project would need to validate the formula."
+
+1:30–2:00 — Compare conditions
+Switch the map from AQI to Noise and then Stress. Select Near Galleria Mall.
+Show how the same locations can be compared across different indicators.
+
+2:00–2:30 — Demonstrate change
+Choose Rush hour. Show the updated readings and alert locations. Start playback
+briefly, then pause. Explain that the clock is accelerated simulated time.
+Choose Improved conditions and show the resulting comparison.
+
+2:30–3:00 — Explain the next step
+"The prototype demonstrates the monitoring and decision-support interface.
+Real sensors, validated AQI processing and field data can later replace the
+simulation. Water quality and disease surveillance remain part of the wider
+Phase 1 vision."
+Optionally export the current readings, then Reset demo for questions.
+
+Do not describe the prototype as a clinical system or claim that the simulated
+scenarios prove real pollution levels, health outcomes, or policy effects.
+
+
+18. WHAT THE AI CODE EDITOR MUST DELIVER
+
+- A complete runnable frontend project, not only screenshots or a code outline.
+- All source files and a dependency lockfile.
+- A polished populated dashboard with the grid map as its central feature.
+- Working interactions and simulated data flow described in this brief.
+- A short README with installation, run/build commands, data definitions,
+  demo controls, stress formula, and known prototype limitations.
+- A concise handoff explaining where the code is and how to start it.
+- A clear record of what was actually verified and any unresolved issue.
+
+Make reasonable small implementation choices without interrupting progress.
+Preserve the four location names, honest demo labelling, map prominence,
+complete parameter coverage, and simple setup. Do not leave essential buttons
+as decorative placeholders.
+
+
+19. FUTURE EXTENSIONS FOR EXPLANATION ONLY
+
+The teacher may ask how this could become a real project. Explain the following
+conceptual path; do not implement it for the demonstration:
+
+- Sensor layer: suitable calibrated particulate, gas, weather, and acoustic
+  instruments, with an ESP32 or Raspberry Pi serving as a possible gateway.
+  A generic microphone or gas module alone should not be represented as a
+  validated noise meter or concentration instrument.
+- Traffic layer: manual counts or appropriately designed vision-based counts
+  and speed/queue estimation. The current prototype uses no camera footage.
+- Transport: HTTP or MQTT from devices to an ingestion service.
+- Backend: a small Node.js or Python service for validation and aggregation.
+- Storage: timestamped station readings in a database such as PostgreSQL.
+- Analytics: official AQI computation using appropriate inputs and time
+  windows, quality checks, missing-data handling, and field validation of the
+  Urban Stress Index against a defined research objective.
+- Interface: replace the demo provider while retaining the dashboard views.
+- Later additions: real maps, supported extra pollutants, wind/rain context,
+  predictive models evaluated on real data, water-quality monitoring, or
+  appropriately governed aggregate disease-surveillance information.
+
+These are architecture options, not a hardware shopping list or an assertion
+that every sensor is suitable. The actual prototype ends at Section 18.
+
+
+20. SOURCE TRACEABILITY AND TECHNICAL REFERENCES
+
+Original project files used to prepare this brief:
+
+1. Phase 1 presentation.pptx
+   Key slides: 2–3, 5, 7–10.
+   Original location:
+   /Users/aayushsharda/DEV/Urban Health Monitoring System/Phase 1 presentation.pptx
+
+2. phase 2 .pptx
+   Key slides: 3–12, especially slide 8 for the exact four names.
+   Original location:
+   /Users/aayushsharda/DEV/Urban Health Monitoring System/phase 2 .pptx
+
+3. Urban_Health_Monitoring_System_3P.docx
+   Key sections: 1 and 4–6 for the index, system positioning, and parameters.
+   Original location:
+   /Users/aayushsharda/DEV/Urban Health Monitoring System/Urban_Health_Monitoring_System_3P.docx
+
+The publications, products, and patents cited within the supplied documents
+are background evidence for the project's concept. Their research claims and
+commercial capabilities are not independently validated by this brief. The
+prototype must not claim novel sensor technology, patent clearance, measured
+health benefits, or field validation based solely on those references.
+
+Official implementation references checked when preparing this brief:
+
+- React: building a React app from scratch, including the Vite option
+  https://react.dev/learn/build-a-react-app-from-scratch
+- Vite: setup and runtime compatibility
+  https://vite.dev/guide/
+- Recharts: chart library installation
+  https://recharts.github.io/en-US/guide/installation/
+- Lucide React: React icon components
+  https://lucide.dev/guide/react
+- CPCB: Indian AQI category boundaries and explanation
+  https://www.airquality.cpcb.gov.in/ccr_docs/About_AQI.pdf
+
+The code editor should consult installed-version documentation when needed.
+The prototype itself should not fetch these pages during normal use.
+
+END OF BUILD BRIEF
