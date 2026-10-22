@@ -1,0 +1,1318 @@
+URBAN HEALTH MONITORING SYSTEM
+Project Plan and System Design Specification
+Environmental monitoring with adaptive commuter routing
+
+
+1. PROJECT VISION
+
+Develop a browser-based Urban Health Monitoring System that brings local air
+quality, acoustic noise, and traffic conditions into one interactive view. The
+prototype will monitor four named urban hotspots, explain their relative
+environmental stress, and demonstrate how a commuter can divert around a
+congested location using an alternative corridor on a fictional street grid.
+
+The system will combine a monitoring dashboard with an adaptive commute
+demonstration. A visitor will be able to inspect a location, compare its
+conditions with the other stations, watch an animated commuter take a detour,
+and observe how the recommended corridor changes when congestion moves.
+
+The application will use repeatable synthetic data. The street layout,
+congestion events, route conditions, and journey benefits will be illustrative.
+"Live routing" in this project will mean an animated routing demonstration
+that responds immediately to the active simulated bottleneck. It will not
+require GPS, a traffic API, a real road map, or a deployed sensor network.
+
+The final deliverable will include the complete application, its source code,
+and a Docker image served by Nginx. Faculty should be able to run the packaged
+demonstration without installing Node.js or setting up an application backend.
+
+
+2. PROBLEM DEFINITION AND PROJECT CONTEXT
+
+The project will address the difficulty of understanding several environmental
+conditions at the same place and time. At a busy junction, pollution, noise,
+slow traffic, and waiting time may occur together. Separate dashboards and
+city-level summaries do not necessarily provide a clear view of that local
+combination or an understandable alternative to a congested corridor.
+
+The design will respond to the following questions:
+
+- How can four local hotspots be compared on one screen?
+- How can air, noise, and congestion be summarized without hiding the inputs?
+- How can a map explain both the location of a bottleneck and a possible detour?
+- How should the display respond when the bottleneck shifts to another site?
+- How can the demonstration remain repeatable and straightforward to share?
+
+Phase 1 will provide the broad context of fragmented data, delayed awareness,
+uneven monitoring, and public-health concerns. Its wider vision includes air
+quality, water quality, noise, and disease surveillance. City government,
+environmental agencies, residents, hospitals, and clinics are stakeholders in
+that wider vision.
+
+The prototype will concentrate on Phase 2's four traffic locations and the
+relationship between air pollution, noise, and congestion. Weather readings
+will provide context. Water quality and disease surveillance will remain
+future extensions, without invented patient records or water measurements.
+
+The literature-survey concept of a location- and time-specific Urban Stress
+Index will guide the integrated score. The project contribution will be the
+combination, explanation, comparison, and routing demonstration, rather than
+the invention of a new physical sensor.
+
+The Urban Stress Index will describe environmental conditions in the demo.
+It will not diagnose an individual's psychological or medical condition.
+Validation against field measurements will be a separate future activity.
+
+
+3. OBJECTIVES AND SCOPE
+
+The project will have the following objectives:
+
+1) Present four monitoring locations on one readable, interconnected grid map.
+2) Display air, noise, traffic, and weather readings from a shared data snapshot.
+3) Calculate a transparent Urban Stress Index and rank stations dynamically.
+4) Flag locations that cross configurable demonstration thresholds.
+5) Animate a commuter avoiding the currently jammed corridor.
+6) Allow congestion to move automatically or through presenter controls.
+7) Compare the direct path with the selected illustrative detour.
+8) Support scenarios, a simulated clock, historical trends, and CSV export.
+9) Include an explanation panel and a short presentation guide inside the app.
+10) Package the system for local development and Docker-based distribution.
+
+The core build will include all of these features. Routing, moving bottlenecks,
+dynamic ranking, and container delivery will be part of the initial product
+scope, rather than optional additions after the monitoring dashboard.
+
+The build will not require user accounts, a database, a remote application
+server, hardware acquisition, paid map services, machine learning, or live
+government datasets. The browser will perform simulation and analytics. Nginx
+will serve the built files in the container, without becoming a data backend.
+
+The primary audience will be a teacher or examiner viewing a laptop screen or
+projector. Commuters, nearby residents, roadside workers, and environmental
+officers will provide the use-case context for the interface.
+
+
+4. MONITORING LOCATIONS AND DEMONSTRATION SETTING
+
+Use exactly four stations. Preserve their full names in station details, the
+comparison table, and CSV output. Short labels may be used where space is
+limited, provided the full identity remains available.
+
+Station 1
+  Full name: Bagalur Cross
+  ID: bagalur-cross
+  Station label: UHMS-01
+  Type: Major Junction Corridor
+  Grid position: x = 240, y = 180
+
+Station 2
+  Full name: Phoenix Mall of Asia entry/exit gate, service road
+  ID: phoenix-mall
+  Station label: UHMS-02
+  Type: Mall Access / Service Road
+  Grid position: x = 720, y = 180
+
+Station 3
+  Full name: Near Galleria Mall
+  ID: galleria-mall
+  Station label: UHMS-03
+  Type: Mall Surroundings & Arterial
+  Grid position: x = 240, y = 460
+
+Station 4
+  Full name: Hebbal Flyover entry
+  ID: hebbal-flyover
+  Station label: UHMS-04
+  Type: Flyover Approach Corridor
+  Grid position: x = 720, y = 460
+
+Use a logical canvas of 1000 by 640 units. Coordinates, roads, parks, barriers,
+and connections will be presentation geometry rather than surveyed geography.
+The station names will be drawn from Phase 2, while local traffic narratives
+will serve as synthetic scenario descriptions.
+
+The default catalogue and comparison order will be Bagalur, Galleria, Phoenix,
+Hebbal. This will also be the automatic congestion-cycle order. Station labels
+will retain their identifiers above, independently of display order.
+
+Bagalur will be the initial jammed and selected station. Galleria, Phoenix,
+and Hebbal will initially show progressively lower stress. That ordering will
+not be permanent: a different fixture set will make each station the active
+bottleneck in its own round.
+
+
+5. TECHNOLOGY AND SYSTEM ARCHITECTURE
+
+The application will be a single-page React frontend with TypeScript and Vite.
+Use the following technology baseline and record exact resolved versions in
+the dependency lockfile:
+
+  React 18.3.1               Component-based interactive interface
+  React DOM 18.3.1           Browser rendering
+  TypeScript 5.9.3           Typed readings, locations, actions, and scenarios
+  Vite 5.4.21                Development server and static bundle
+  Recharts 2.15.4            Time-series charts
+  lucide-react 1.61.0        Interface icons
+  Ordinary CSS              Layout, typography, responsive styling, tokens
+  Inline SVG                Schematic streets, routes, barriers, and commuter
+  React Context + reducer   Shared application state
+  Browser download APIs     CSV generation without a server
+  Node 22 Alpine            Build environment inside Docker
+  Nginx Alpine              Static application hosting in the final image
+  Docker Compose            Repeatable container configuration
+
+Use these resolved versions as the reproducible dependency baseline. Package
+manifests may declare compatible version ranges, but the committed lockfile
+and npm ci will determine the versions used in a repeatable build. Changing
+the lockfile will require the relevant checks to be repeated. Avoid replacing
+the stack with a full-stack framework or adding unrelated infrastructure.
+Development scripts will cover the dev server, type-check/build, local preview,
+and linting. Include an ESLint 9 flat configuration, such as eslint.config.js,
+for TypeScript and React; a lint script alone will not configure linting.
+The build command will perform a TypeScript check followed by the
+Vite bundle. The application package will be named urban-health-monitor with
+an initial version of 1.0.0.
+
+The system will have six cooperating parts:
+
+A. Location and scenario data
+   Store station metadata, per-bottleneck fixture tables, the simulation epoch,
+   and transformations for Baseline, Rush hour, and Improved conditions.
+
+B. Simulation provider
+   Generate complete current snapshots and synthetic history using the active
+   jam, scenario, station, and simulation step.
+
+C. Analytics functions
+   Calculate categories, stress scores, component contributions, alert reasons,
+   summary values, and station ranking from those readings.
+
+D. Shared state
+   Hold selection, active jam, cycle number, layers, scenario, time, playback,
+   snapshots, histories, and table sorting. Apply changes through explicit
+   reducer actions so each view receives a coherent update.
+
+E. Map and commuter presentation
+   Choose the prescribed route for the active jam, interpolate the commuter's
+   position along its segments, and show the abandoned approach and detour.
+
+F. Dashboard and delivery
+   Present the map, ranking, details, charts, alerts, comparison, and export.
+   Package the resulting static files with Nginx for distribution.
+
+Data flow will be:
+
+  Active jam + scenario + station fixtures + simulation step
+       -> one complete reading snapshot and history per station
+       -> categories, stress scores, rankings, and alert reasons
+       -> map markers, station details, chart, table, overview, and CSV
+
+  Active jam + commuter progress
+       -> prescribed route, barrier, status message, and rider position
+       -> completed-loop event
+       -> next jam when Auto-Shift is enabled
+
+The route comparison will use the active jam's current reading. It will not
+switch to another station simply because that station is selected for viewing.
+Map selection, route state, and simulation state must have distinct meanings.
+
+All data will remain in memory for the session. A reload will start a fresh
+demonstration. No persistence service or browser storage is required.
+
+
+6. MONITORING PARAMETERS AND UNITS
+
+Air quality
+  AQI                   Unitless simulated integer, 0 to 500
+  PM2.5                 Micrograms per cubic metre, µg/m³
+  PM10                  Micrograms per cubic metre, µg/m³
+  CO                    Milligrams per cubic metre, mg/m³
+
+Noise and acoustic context
+  LAeq                  A-weighted equivalent sound level, dB(A), 1-minute window
+  SPL                   Instantaneous sound pressure level, dB(A)
+  Lmax                  Maximum level during the simulated window, dB(A)
+  L10                   Level exceeded for 10% of the window, dB(A)
+  L90                   Level exceeded for 90% of the window, dB(A)
+  Honk frequency        Simulated event rate, events/min
+
+Traffic
+  Vehicle count         Vehicles during the previous simulated minute
+  Traffic flow          Vehicles/min, numerically equal to that 1-minute count
+  Mean speed            km/h
+  Queue length          Metres
+  Average waiting time  Seconds
+
+Weather
+  Temperature           Degrees Celsius
+  Relative humidity     Percent
+
+Context and derived data
+  Location identity, station label, road-context description, grid position
+  ISO timestamp displayed in Asia/Kolkata, IST
+  Source label fixed to simulated
+  Scenario and active congestion location
+  AQI category, Urban Stress Index, stress category, and active alert reasons
+
+Store sufficient precision for the simulation and round for presentation.
+AQI, vehicle count, and stress score will be integers. Concentrations, sound
+levels, speed, and other continuous readings may use one decimal. CO may retain
+two decimals internally. Honk frequency may be fractional as a simulated rate.
+
+AQI will be a separately supplied synthetic field. Do not claim official AQI
+calculation from the prototype's short-window particulate readings. The sound
+statistics will also be fixture values, not calculated physical measurements
+from a microphone stream or arithmetic averages of decibels.
+
+NO2, VOCs, wind speed/direction, rainfall, loud-event counts, and intermittency
+may be discussed as extension capabilities. Unsupported readings will be
+unavailable, not represented as measured zeros. Water and disease data will
+remain outside the implemented parameter set.
+
+
+7. SYNTHETIC DATA DESIGN
+
+7.1 Starting state
+
+The monitoring simulation will start paused at:
+  2026-10-21T09:00:00+05:30
+
+This will be a fixed demonstration epoch, not the real current clock. Bagalur
+Cross will be selected and jammed, with cycle counter 1 and AQI selected for
+both the map and trend chart. The route overlay and Auto-Shift will initially
+be enabled.
+
+The default Baseline fixture will be:
+
+Parameter                         Bagalur   Galleria   Phoenix   Hebbal
+AQI                                  248        185       135       78
+PM2.5 (µg/m³)                        104         78        68       35
+PM10 (µg/m³)                         215        145       120       60
+CO (mg/m³)                           1.8        1.2       0.9      0.5
+Noise LAeq (dB(A))                  82.5       76.5      70.0     62.0
+SPL (dB(A))                         83.5       77.5      71.5     63.5
+Lmax (dB(A))                           92         86        80       72
+L10 (dB(A))                            86         80        74       66
+L90 (dB(A))                            76         70        64       56
+Honks (events/min)                    18         12         9        4
+Vehicles in one minute                68         52        40       26
+Mean speed (km/h)                     12         18        22       32
+Queue length (m)                     220        140        95       45
+Average waiting time (s)             160        110        75       35
+Temperature (°C)                      32         31        30       28
+Relative humidity (%)                55         58        60       65
+
+All values will be invented for the demonstration. They will not establish
+actual environmental conditions or the true relative cleanliness of the sites.
+
+7.2 Moving congestion
+
+Provide one complete four-station fixture set for each possible jam location.
+Changing the jam must update all stations, not only turn a different marker red.
+The intended step-zero baseline AQI and stress results will be:
+
+Active jam          Bagalur       Galleria      Phoenix       Hebbal
+                    AQI / USI     AQI / USI     AQI / USI     AQI / USI
+Bagalur             248 / 83      185 / 63      135 / 47       78 / 28
+Galleria            130 / 45      252 / 85      140 / 49       75 / 27
+Phoenix             138 / 48      125 / 43      246 / 82       72 / 26
+Hebbal              132 / 45      128 / 44      115 / 39      242 / 80
+
+Appendix A will define the remaining per-round inputs. These presets will
+create distinct demonstrations of junction congestion, mall-side queuing,
+service-road congestion, and a flyover approach bottleneck.
+
+7.3 Scenario transformations
+
+Apply the selected scenario to the active jam's fixture table before adding
+time variation. All four stations will receive the transformation.
+
+Quantity                         Rush hour             Improved conditions
+AQI                              Multiply by 1.30      Multiply by 0.65
+PM2.5 and PM10                    Multiply by 1.30      Multiply by 0.65
+CO                               Multiply by 1.20      Multiply by 0.70
+LAeq, SPL, Lmax, L10, L90         Add 5 dB(A)           Subtract 8 dB(A)
+Honk frequency                   Multiply by 1.50      Multiply by 0.50
+Vehicle count                    Multiply by 1.20      Multiply by 0.85
+Mean speed                       Multiply by 0.65      Add 10 km/h
+Queue length and waiting time    Multiply by 1.35      Multiply by 0.55
+Temperature and humidity         No scenario change    No scenario change
+
+Clamp AQI to 0–500 and round it to an integer. The weather fields can still
+vary slightly with simulation time. A scenario change will retain the active
+jam, so congestion location and severity scenario remain independent controls.
+
+These transformations will be illustrative presets, not calibrated estimates
+of how traffic management changes real air pollution or acoustic exposure.
+
+7.4 Repeatable time variation
+
+Each data step will represent five simulated minutes. While running, a single
+timer will advance one step every five seconds of wall-clock time. Generate
+small deterministic variations around the current scenario anchor.
+
+A suitable generator will use two superimposed sine waves:
+
+  oscillation = [sin(0.7 * step + locationSeed + parameterSeed)
+       + 0.3 * sin(1.3 * step + 1.7 * locationSeed + 0.9 * parameterSeed)] / 1.3
+
+For multiplicative fields:
+  value = anchor * (1 + amplitude * oscillation)
+
+For additive fields:
+  value = anchor + amplitude * oscillation
+
+At step zero, return the exact anchor without oscillation. Use fixed station
+seeds of 1.0 for Bagalur, 3.7 for Galleria, 2.3 for Phoenix, and 5.1 for Hebbal.
+Use these fixed parameter seeds so different fields do not all move identically:
+
+  aqi: 0.0                    pm25UgM3: 0.5
+  pm10UgM3: 1.0               coMgM3: 1.5
+  noiseLAeqDbA: 2.0           splDbA: 2.2
+  lmaxDbA: 2.4                l10DbA: 2.6
+  l90DbA: 2.8                 honksPerMinute: 3.0
+  vehicleCountOneMinute: 3.5  meanSpeedKmh: 4.0
+  queueLengthMetres: 4.5      waitingTimeSeconds: 5.0
+  temperatureC: 6.0          humidityPercent: 6.5
+
+The sine inputs will be in radians. Apply the field precision and constraints
+after the scenario transformation and deterministic variation.
+
+Variation amplitudes will be approximately:
+  Air and traffic fields: 4% of the anchor
+  Acoustic levels: 1.5 dB(A)
+  Temperature: 0.5°C
+  Humidity: 2 percentage points
+
+No component may generate its own unrelated random reading. Data must not drift
+without bounds over time. Enforce nonnegative concentrations, counts, queue,
+speed, and waiting time; humidity 0–100%; PM10 >= PM2.5; Lmax >= L10 >= L90;
+and Lmax >= SPL. Preserve sensible acoustic relationships after variation.
+
+7.5 History
+
+Pre-fill 13 samples covering the previous 60 simulated minutes at five-minute
+intervals. Step zero must match the final history point exactly. Append one
+sample on each data tick and retain the latest 13 samples.
+
+On a jam switch, regenerate the history for the newly selected fixture at the
+current simulation step. On a scenario change, regenerate at step zero. This
+will provide a consistent synthetic history for the current configuration,
+rather than an audit trail of every scenario the presenter has selected.
+
+Labels should make that history's simulated nature clear. One-minute acoustic
+and vehicle windows sampled at five-minute intervals must keep their original
+measurement-window descriptions.
+
+
+8. ANALYTICS AND URBAN STRESS INDEX
+
+8.1 AQI categories
+
+Use these category boundaries for the simulated integer AQI:
+
+  0–50       Good
+  51–100     Satisfactory
+  101–200    Moderate
+  201–300    Poor
+  301–400    Very Poor
+  401–500    Severe
+
+These are the Indian AQI category ranges used for display. The software will
+not claim to produce official station readings. Calculate category labels
+from the current value wherever they appear; for example, 248 belongs to Poor.
+The category source will be CPCB's About National Air Quality Index:
+https://airquality.cpcb.gov.in/ccr_docs/About_AQI.pdf
+
+Only the AQI category boundaries will come from that reference. The synthetic
+readings, stress formula, other display bands, and alert rules will remain
+project assumptions and must not be attributed to CPCB.
+
+8.2 Demo display bands
+
+Use Low, Elevated, and High for the other map layers:
+
+  Noise:  Low below 65; Elevated 65 to below 80; High 80 or more dB(A).
+  PM2.5:  Low through 30; Elevated above 30 through 90; High above 90 µg/m³.
+  PM10:   Low through 50; Elevated above 50 through 150; High above 150 µg/m³.
+  Queue:  Low through 75; Elevated above 75 through 150; High above 150 m.
+  USI:    Low 0–39; Elevated 40–69; High 70–100.
+
+For decimal implementation, the PM2.5 interval starts may use 0, 30.01, and
+90.01; PM10 may use 0, 50.01, and 150.01; queue may use 0, 75.01, and 150.01.
+Use inclusive lower bounds and exclusive upper bounds. At the planned reading
+precision, these will represent the display bands above.
+
+Keep these thresholds in central configuration. Label them as demo display
+bands rather than regulatory limits or declarations that a location is safe.
+
+8.3 Index formula
+
+Define clamp01(x) = min(1, max(0, x)). Then calculate:
+
+  airScore   = 100 * clamp01(AQI / 300)
+  noiseScore = 100 * clamp01((LAeq - 45) / 45)
+  waitScore  = 100 * clamp01(waitingTimeSeconds / 180)
+  queueScore = 100 * clamp01(queueLengthMetres / 300)
+
+  trafficScore = 0.60 * waitScore + 0.40 * queueScore
+
+  Urban Stress Index = round(
+      0.45 * airScore
+    + 0.35 * noiseScore
+    + 0.20 * trafficScore
+  )
+
+Use unrounded values for the weighted calculation. Component scores and their
+weighted contributions may be displayed to one decimal; round the final index
+to an integer. The normalization references and weights will be deliberate
+demo assumptions, not conclusions of a validation study.
+
+AQI 300 will saturate the air component at 100 even though the AQI display scale
+extends to 500. Temperature, humidity, CO, honks, and speed will remain useful
+context but will not be extra terms in the index. PM2.5 and PM10 will remain
+visible without being counted again as separate weighted air components.
+
+The formula disclosure will show the current inputs, component scores, weights,
+and contributions. It will identify the result as a demonstration index rather
+than a medical assessment.
+
+For the default Bagalur fixture:
+  airScore = 82.6667
+  noiseScore = 83.3333
+  waitScore = 88.8889
+  queueScore = 73.3333
+  trafficScore = 82.6667
+  weighted total = 82.9
+  displayed Urban Stress Index = 83/100, High
+
+8.4 Ranking and summaries
+
+Sort stations by current Urban Stress Index, highest first. Show station name,
+AQI, stress value, selection state, and a distinct JAMMED indicator for the
+active congestion location. Clicking a ranking entry will select that station
+for inspection without moving the jam.
+
+Ranking will be relative to the four current readings. A lowest-ranked site
+must not be interpreted as a clinically safe site. The active jam will be an
+explicit scenario state, not inferred from whichever marker the user clicks.
+
+Overview cards will show four monitored locations, mean demo AQI, highest AQI
+and its station, and the number of locations with active alerts. The mean will
+be the arithmetic mean of the four synthetic values, not official city AQI.
+For the opening fixture it will be 161.5, displayed as 162 when rounded.
+
+8.5 Alerts
+
+Trigger a current in-app alert if any condition is true:
+  AQI >= 201
+  Noise LAeq >= 80 dB(A)
+  Urban Stress Index >= 70
+
+Group reasons by location. Count affected locations rather than individual
+trigger rules. Sort alert cards by stress descending and then AQI descending.
+Clicking an alert will select its station. Cleared conditions will disappear
+from the current alert list.
+
+At the opening fixture, Bagalur alone will trigger all three rules, so the
+summary count will be one affected location. Keep threshold explanations
+visible and use an empty state when no location triggers an alert.
+
+
+9. INTERCONNECTED MAP AND ADAPTIVE COMMUTER ROUTING
+
+9.1 Street network
+
+The map will be a schematic network with multiple parallel corridors. It must
+make an alternative path visually understandable when a direct approach is
+blocked. Draw subtle grid lines, neutral city blocks, marked roads, and small
+green areas. Use the four station coordinates from Section 4.
+
+Horizontal corridors:
+  North Arterial                  y = 180
+  Central Park Bypass Avenue      y = 320
+  South Parkway                   y = 460
+
+Vertical corridors:
+  Outer West Lane                 approximately x = 100
+  West Connector Link             x = 175
+  West Link Corridor              x = 240
+  Mid-West Eco Avenue             approximately x = 360
+  Central Avenue Arterial         x = 480
+  Mid-East Botanical Link         approximately x = 600
+  East Corridor                   x = 720
+  Outer East Expressway           x = 880
+
+Green-area labels may include Central Green Eco-Park Corridor, North Botanical
+Wildlife Reserve, and East Community Woodlands. These will be schematic design
+elements, not claims about the actual surroundings of the four locations.
+
+All four stations will remain visible together. Show a station identifier,
+location label, active-layer value, unit, and category. Clicking or keyboard
+activation will select a marker. A teal outline will indicate selection;
+status colour will continue to represent the active measurement layer.
+
+Provide six map layers: Air Quality Index, Noise Level, PM2.5, PM10,
+Queue / Traffic, and Stress Index. The traffic layer will show queue length.
+Each layer will update values, units, colours, and its own legend together.
+Map-layer switching will not change the active jam or prescribed route.
+
+9.2 Routing method
+
+Use a deterministic route catalogue keyed by the active jam location. Each
+entry will define a blocked approach, a detour name, route geometry, a barrier
+position, animation segments, and phase descriptions. This will demonstrate
+responsive decision support without needing a graph-search algorithm.
+
+The routing logic will be:
+
+  Identify active jam
+    -> select that jam's route configuration
+    -> highlight the abandoned direct approach in red
+    -> highlight the prescribed bypass in green
+    -> animate the commuter through the route phases
+    -> optionally move the jam after a completed loop
+
+Do not present the prescribed route as a computed shortest path, a verified
+lowest-dose journey, or an official traffic diversion. Environmental readings
+will inform the explanation and comparison, while the active-jam state will
+select the scripted route. The stress ranking and alert thresholds will not
+automatically choose the jam or solve for a route. Manual controls and the
+completed-loop sequence will determine which bottleneck is active.
+
+The designated jam may remain selected under Improved conditions even when
+its readings no longer trigger an alert. This will distinguish a scenario
+location from a measured threshold breach.
+
+9.3 Four congestion rounds
+
+Round 1: Bagalur Cross
+  Demonstrate convergence of junction traffic and idling in the scenario.
+  Abandon the North Arterial approach through Bagalur.
+  Divert via West Connector Link at x=175 onto Central Park Bypass at y=320,
+  travel east, and reconnect through the East Corridor near Phoenix.
+
+Round 2: Near Galleria Mall
+  Demonstrate commercial parking and stop-and-go congestion in the scenario.
+  Abandon the West Link approach into Galleria.
+  Turn east along Central Bypass, then south on Central Avenue at x=480 to
+  reach South Parkway beyond the blocked approach.
+
+Round 3: Phoenix Mall of Asia
+  Demonstrate service-road drop-off and pickup queues in the scenario.
+  Abandon the North Arterial approach into Phoenix.
+  Turn south at Central Avenue, cross Central Bypass to Outer East Expressway
+  at x=880, and reconnect north of the simulated queue.
+
+Round 4: Hebbal Flyover entry
+  Demonstrate an approach-ramp bottleneck in the scenario.
+  Abandon the eastbound South Parkway approach into Hebbal.
+  Turn north at Central Avenue, cross Central Bypass, and use Outer East
+  Expressway to reach the southeast destination beyond the bottleneck.
+
+Each route will include a return portion so the commuter can loop continuously.
+Appendix B will specify route waypoints and blocked segments. The environmental
+comparison will refer to the illustrated diversion portion; a return leg will
+serve animation continuity rather than a claim about total-trip exposure.
+
+9.4 Animation and map controls
+
+Represent the commuter as a small motorcycle or rider icon. Interpolate along
+line segments using their relative lengths and rotate the rider to match the
+current direction. Use requestAnimationFrame for smooth animation. Target one
+complete loop in approximately 16 seconds of animation time.
+
+Separate the animation clock from the monitoring clock. A 16-second rider loop
+will be a visual demonstration interval, not a measured journey duration.
+The monitoring clock will still advance five simulated minutes per data tick.
+
+Show readable phase descriptions such as approaching, alert, detour, cleaner
+illustrative corridor, arrived, and returning. Highlight the red direct path,
+barrier, and green bypass without hiding the monitoring stations.
+
+Map controls will include:
+  Show Path / Hide Path
+  Auto-Shift: ON / PAUSED
+  1. Bagalur Jam
+  2. Galleria Jam
+  3. Phoenix Jam
+  4. Hebbal Jam
+
+Auto-Shift will initially be on. After a loop completes during playback, it
+will move the jam in this order:
+  Bagalur -> Galleria -> Phoenix -> Hebbal -> Bagalur
+
+With Auto-Shift paused, the rider will continue looping around the same active
+jam. Hiding the path will change visibility, not the underlying monitoring or
+cycle logic. Pausing global playback will stop both the data timer and rider.
+
+Manual jam selection will work while paused or running. It will replace the
+fixture set, select the jammed station for inspection, and update the route,
+barrier, ranking, detail values, alerts, and route comparison immediately.
+It will retain the current scenario, simulation step, and playback state.
+
+9.5 Route comparison
+
+Include a panel titled "Adaptive Commuter Health Navigation" or a similarly
+clear title. It will compare the active bottleneck's abandoned direct path
+with its chosen illustrative detour, including each route's name and reason.
+
+Use the active jam's current reading for the direct-path AQI, noise, and queue.
+Derive the illustrative detour values with:
+
+  detour AQI = round(direct AQI * 0.35)
+  detour noise = direct LAeq - 18.5 dB(A)
+  detour queue = 0 metres
+
+For the opening Bagalur fixture, the comparison will therefore be:
+  Direct: AQI 248, noise 82.5 dB(A), queue 220 m
+  Detour: AQI 87, noise 64.0 dB(A), queue 0 m
+
+Use red and green comparison panels with visible numbers and units. Any 65%
+reduction headline will mean the designed reduction in this synthetic AQI
+comparison before rounding. It will not mean 65% less inhaled pollutant dose.
+AQI is an index, not a measure of inhaled mass or a personal exposure dose.
+Use labels such as "Simulated AQI" and "Illustrative AQI reduction". Determine
+each route's AQI category from its value instead of attaching fixed labels.
+For example, the Bagalur Rush hour anchor will have direct AQI 322 (Very Poor)
+and detour AQI 113 (Moderate); the detour will not always be Satisfactory.
+The noise comparison will show a difference in dB(A), not a percentage
+reduction in sound energy or proof of reduced health risk.
+
+If a travel-time benefit such as 4–7 minutes is shown, identify it as a scenario
+illustration. Route lengths in grid units and animation duration do not provide
+real journey times. Do not promise health protection or quantify medical
+benefits from these comparison rules.
+
+
+10. DASHBOARD AND USER EXPERIENCE
+
+The application will open directly to a populated dashboard, without login,
+setup forms, or a blank loading screen. A single scrolling page will keep the
+whole demonstration easy to navigate.
+
+Use the following order:
+
+1) Header
+   Project title, short description, persistent Demo data badge, adaptive
+   commute status, Presentation Script button, and About Project button.
+
+2) Overview cards
+   Monitored locations, mean demo AQI, highest AQI/location, alert-location count.
+
+3) Dynamic Stress Ranking
+   Four clickable entries ordered by current stress, with AQI and stress values
+   and a separate indicator identifying the jammed station.
+
+4) Demo controls
+   Scenario menu, Start/Pause, Step, Reset, simulated time, and playback status.
+
+5) Main dashboard
+   Large map on the left and station details on the right. The map area will
+   contain layer controls, active-jam/detour information, jam buttons, route
+   visibility and Auto-Shift controls, the animated grid, and its legend.
+
+6) Trend and alerts
+   A selected-station trend chart beside the current grouped alert list.
+
+7) Route comparison
+   Direct-path versus detour values for the current bottleneck.
+
+8) Station comparison and export
+   Four station rows, sorting controls, and Export current readings.
+
+9) Footer
+   A concise academic-prototype and simulated-data statement.
+
+Station details will show full name, label, type, timestamp, simulated source,
+current alert reasons, large AQI/category, PM2.5, PM10, LAeq, and Urban Stress
+Index. Provide traffic context, temperature, humidity, and CO below the primary
+readings. Expandable sections will reveal acoustic statistics and the complete
+index calculation.
+
+Keep a persistent indication that the map geometry is illustrative. Wrap the
+Phoenix name as needed. Do not replace its full identity with "Station 2".
+
+Visual design will use white surfaces on #F4F7F8, main text #162C36, secondary
+text #536872, accent #0F766E, selection tint #DFF3EF, and borders #DCE5E8.
+Use restrained shadows, approximately 14 px card corners, and consistent gaps.
+Use Inter when locally available with system-font fallbacks; no downloaded
+font will be required. Pair all status colours with text or numeric meaning.
+
+Target a maximum content width near 1440 px and a detail panel around 340 px
+on desktop. Below approximately 1100 px, stack the main panels. Below 640 px,
+wrap controls and compact the cards without hiding core functionality. The
+desktop view will be the presentation priority.
+
+
+11. CONTROL BEHAVIOUR AND STATE CONTRACT
+
+Selection
+  Marker, ranking entry, alert, or comparison row selects a station and updates
+  its detail panel and chart. Selection alone does not change congestion.
+
+Start and Pause
+  Start resumes both monitoring updates and rider animation. Pause freezes
+  them while keeping inspection controls usable.
+
+Step
+  Available only while paused. Advance the monitoring step by one and add five
+  simulated minutes. It does not represent completion of a commuter loop.
+
+Scenario change
+  Retain the active jam, selected station, map layer, chart metric, sorting,
+  and cycle count. Pause playback, reset monitoring time to the fixed epoch,
+  and regenerate readings and history for the new scenario.
+
+Manual jam change
+  Retain scenario, clock, playback state, and cycle count. Replace the active
+  jam and fixture set, regenerate history at the current step, and select the
+  newly jammed station. Select its prescribed route for the overlay.
+
+Automatic cycle change
+  Move to the next jam after a rider loop when Auto-Shift is on. Increment the
+  cycle counter, select the new jammed station, and regenerate readings/history
+  at the existing simulation step. Keep playback running.
+
+Reset
+  Restore shared monitoring state to Baseline, Bagalur selected and jammed,
+  cycle 1, step zero at 09:00 IST, paused, AQI map and chart, and default sorting.
+  Regenerate the opening readings and history. Map presentation preferences
+  such as path visibility and Auto-Shift will remain local to the map component
+  along with rider progress. Expanded sections will remain local to the detail
+  panel. Shared-state Reset will not promise to restart the rider from the first
+  waypoint or close every expanded section. A full page reload will restore the
+  complete opening view.
+
+History semantics
+  A change of jam or scenario replaces the synthetic historical window for
+  that configuration. A normal data tick appends to the current window.
+
+Route versus selection
+  The route comparison and route overlay follow activeJamLocationId. The
+  detail panel and trend chart follow selectedLocationId. Keep both identities
+  clear when the user inspects a different station during a running route.
+
+
+12. TRENDS, COMPARISON, EXPORT, AND EXPLANATION
+
+Trend chart
+  Display the selected station's past 60 simulated minutes with 13 points.
+  Offer AQI, Noise LAeq, PM2.5, PM10, Waiting Time, and Stress. Use one metric
+  and one clearly labelled unit per chart. Format time in IST. The last point
+  must match the current station reading or derived score.
+
+Comparison table
+  Always include all four locations. Show AQI/category, PM2.5, PM10, noise,
+  queue length, stress score, and alert status. Offer sorting by AQI, noise,
+  or stress and an ordinary default order. Sorting must not move map stations.
+  Clicking a row will select the station for inspection.
+
+CSV export
+  Generate four rows from the current shared snapshot. Include full station
+  name and label, scenario, timestamp, simulated source, all 16 raw numeric
+  reading fields, AQI category, stress score/category, and alert reasons.
+  Put units in headers and raw numeric values in cells. Quote commas, quotes,
+  and newlines correctly, including the Phoenix location name.
+  Use a filename based on scenario and timestamp. Download through a browser
+  Blob URL and release the temporary URL after use. Do not regenerate values
+  when exporting. A file must describe the same snapshot visible on screen.
+
+About Project
+  Explain the problem, audiences, four-station scope, integration concept,
+  simulated data, fictional geometry, demo formula, and broader Phase 1 scope.
+  Describe field validation and genuine data collection as future work.
+
+Presentation Script
+  Include a closable three-minute guide in the header. Organize it as:
+    0:00–0:45  Context, four sites, and interconnected fictional grid
+    0:45–1:30  Station inspection, metric layers, and transparent index
+    1:30–2:30  Rider, jam buttons, automatic rotation, and route changes
+    2:30–3:00  Illustrative route comparison, CSV export, and reset
+  Keep scientific claims consistent with the data model. The guide will explain
+  the demo's intended benefits without presenting simulated reductions as
+  measured health outcomes.
+
+
+13. DATA CONTRACTS AND MODULE ORGANIZATION
+
+Use explicit types for:
+
+Location
+  id, full name, stationLabel, type, position {x, y}, and context.
+
+Reading
+  locationId, timestamp, source="simulated", scenario;
+  aqi, pm25UgM3, pm10UgM3, coMgM3;
+  noiseLAeqDbA, splDbA, lmaxDbA, l10DbA, l90DbA, honksPerMinute;
+  vehicleCountOneMinute, meanSpeedKmh, queueLengthMetres, waitingTimeSeconds;
+  temperatureC, humidityPercent.
+
+DerivedReading
+  aqiCategory, urbanStressIndex, stressCategory, componentScores,
+  weightedContributions, and alertReasons.
+
+AppState
+  selectedLocationId, activeJamLocationId, commuterCycle, activeMapLayer,
+  activeTrendMetric, scenario, simulationStep, simulationTimestamp, isPlaying,
+  readingsByLocation, historyByLocation, and comparisonSort.
+
+Route configuration
+  title, jammedName, jammedReason, detourName, abandonedLine with endpoints and
+  barrier position, detour geometry, and animation segments. Each segment will
+  include endpoints, length, angle, phase, and status text.
+
+Use reducer actions for selection, jam changes, next commuter cycle, map layer,
+chart metric, scenario, tick/step, play/pause, reset, and comparison sorting.
+Keep route visibility, Auto-Shift preference, rider progress, and animation
+references in the map component where appropriate.
+
+Organize the repository as follows:
+
+  Urban Health Monitoring System/
+    Urban Health Monitoring Project Plan.txt
+    README.md
+    LICENSE
+    Dockerfile
+    docker-compose.yml
+    docker-build.sh
+    docker-run.sh
+    .dockerignore
+    .gitignore
+    urban-health-monitor/
+      package.json
+      package-lock.json
+      index.html
+      tsconfig.json
+      eslint.config.js
+      vite.config.ts
+      Dockerfile
+      nginx.conf
+      .dockerignore
+      src/
+        App.tsx
+        main.tsx
+        styles.css
+        types.ts
+        vite-env.d.ts
+        data/
+          locations.ts
+          baseline.ts
+          scenarios.ts
+        services/
+          demoDataProvider.ts
+        config/
+          metrics.ts
+          thresholds.ts
+        state/
+          DemoProvider.tsx
+          demoReducer.ts
+        utils/
+          analytics.ts
+          formatting.ts
+          exportCsv.ts
+        components/
+          Header.tsx
+          OverviewCards.tsx
+          VulnerabilityRanking.tsx
+          DemoControls.tsx
+          MetricLayerSelector.tsx
+          CityGridMap.tsx
+          MapLegend.tsx
+          LocationDetails.tsx
+          StressBreakdown.tsx
+          TrendChart.tsx
+          AlertsPanel.tsx
+          RouteComparisonCard.tsx
+          ComparisonTable.tsx
+          AboutDialog.tsx
+          PresenterScriptDialog.tsx
+          Footer.tsx
+
+The README will be a separate operational handoff document. This plan will
+define the product intent, architecture, behavior, implementation sequence,
+and acceptance criteria.
+
+
+14. DOCKER PACKAGING AND DISTRIBUTION PLAN
+
+Container packaging will be a required deliverable. It will make the same
+compiled application convenient to run on a faculty machine or another
+Docker-compatible host with a compatible CPU architecture.
+
+14.1 Build design
+
+Use a multi-stage root Dockerfile with the repository root as build context.
+
+Builder stage
+  Base image: node:22-alpine.
+  Working directory: /app.
+  Copy the application's package manifests first and install with npm ci.
+  Copy application sources and run the type-check/build script.
+  Produce the static bundle in /app/dist.
+
+Runtime stage
+  Base image: nginx:alpine.
+  Remove the default welcome content and copy the application Nginx config.
+  Copy only the compiled bundle from the builder to /usr/share/nginx/html.
+  Include wget for the HTTP health check.
+  Expose container port 80 and run Nginx in the foreground.
+  Set project, maintainer, repository, and version metadata.
+
+The runtime image will not need Node.js, development dependencies, a database,
+or an application API. Its role will be to serve HTML, JavaScript, CSS, and
+other bundled assets; simulation will execute in each visitor's browser.
+
+An equivalent application-folder Dockerfile will support a build context of
+urban-health-monitor/. Its copy paths will be relative to that folder. The
+root Dockerfile will remain the primary context for Compose and helper scripts.
+
+14.2 Nginx behavior
+
+Listen on port 80. Serve the application root and index.html. Use an index.html
+fallback for single-page application requests. Enable gzip for appropriate
+text assets and cache fingerprinted assets under /assets/ for one year with
+an immutable cache directive. The application must load on a direct visit or
+browser refresh, without depending on Vite's development server.
+
+Include basic response headers for framing, content-type handling, and referrer
+policy. Keep these as hosting configuration rather than claiming a complete
+production security architecture.
+
+14.3 Health and Compose configuration
+
+The container health check will request http://localhost:80/ every 30 seconds,
+with a 5-second timeout, a 5-second startup period, and three retries. It will
+verify that the web server responds, not that every UI feature has been tested.
+
+Compose will define one urban-health-monitor service with:
+  Image: aayushdevelops/urban_health_monitoring_system:latest
+  Build context: repository root
+  Dockerfile: root Dockerfile
+  Container name: urban_health_monitoring_system
+  Host port 8080 mapped to container port 80
+  Restart policy: unless-stopped
+
+The normal local demonstration address will be http://localhost:8080. No data
+volume is necessary because the runtime is static and session data is in the
+browser. A different host port may be selected when 8080 is occupied.
+
+14.4 Sharing outputs
+
+Prepare a Docker Hub distribution using the lowercase repository name:
+  aayushdevelops/urban_health_monitoring_system
+
+Use latest as the convenient demonstration tag and 1.0.0 as the initial product
+version in application and image metadata. Registry publication will be a
+delivery step, not a prerequisite for local use.
+
+Also provide an image archive named urban_health_monitoring_system.tar. The
+archive will let a recipient load the image without accessing the registry.
+The build helper will build the image, add the namespaced and local tags, and
+save the namespaced image archive. The run helper will start the named
+container on port 8080 and handle an existing container of the same name.
+
+The image must contain the bundle rather than referencing the developer's local
+source directory. Runtime operation will need no external fonts, map tiles,
+telemetry, or data services. Internet access may be needed to obtain build
+dependencies, base images, or the shared image initially; the loaded app will
+then operate locally without those services.
+
+Verify the recipient's CPU architecture. A native Apple Silicon image is not
+automatically a native Intel/AMD image. If both architectures are required,
+prepare compatible builds or a multi-platform distribution and verify each
+target. Do not claim cross-platform validation without running the checks.
+Platform planning reference:
+https://docs.docker.com/build/building/multi-platform/
+
+Exclude node_modules, local dist, Git metadata, logs, system files, source
+presentations/documents, and saved image archives from Docker build context
+where they are unnecessary. Keep large .tar archives out of ordinary Git
+commits; distribute them as delivery artifacts instead.
+
+
+15. QUALITY REQUIREMENTS AND DESIGN LIMITS
+
+The prototype will prioritize clear presentation, coherent data, responsive
+interaction, and simple deployment over production infrastructure.
+
+- All current widgets must agree on the same station readings.
+- All four stations must remain identifiable on the desktop map.
+- Controls must have readable labels and keyboard focus states.
+- Provide at least a 44 px practical target for important marker interactions.
+- Use text with status colours and preserve readable contrast.
+- Provide keyboard closing for dialogs and sensible focus handling.
+- Support smaller screens by stacking or wrapping components.
+- Keep optional motion restrained and respect reduced-motion preferences.
+- Avoid duplicate timers, uncontrolled memory growth, and frame callbacks left
+  running after pause or component unmount.
+- Use consistent units and clearly distinguish scenario time from real time.
+- Represent absent readings as unavailable, never as a false measurement of 0.
+- Handle empty history and unavailable data with a readable state.
+- Do not collect personal health data or use clinical predictions in the demo.
+
+Route-benefit labels, ranking labels, and presentation copy must be interpreted
+as part of the synthetic scenario. The design will not establish actual safe
+routes, actual field conditions, regulatory compliance, or a validated health
+effect. This distinction will be visible in the About panel and demo labels.
+
+
+16. IMPLEMENTATION WORK PLAN
+
+Stage 1: Product and data foundation
+  Establish the four station identities, fixture schema, scenario definitions,
+  default jam, and project structure. Define reusable design tokens and the
+  shared analytics functions. Verify initial scores before drawing conclusions
+  from the dashboard.
+
+Stage 2: Monitoring dashboard
+  Build the populated page, overview cards, station selection, details,
+  six map layers, legends, stress explanation, and current alert list. Connect
+  every panel to the shared snapshot.
+
+Stage 3: Simulation and comparison
+  Implement deterministic time variation, scenario transforms, playback,
+  step/reset behavior, synthetic history, dynamic ranking, sortable station
+  comparison, and snapshot CSV export.
+
+Stage 4: Interconnected route demonstration
+  Draw the parallel road network and four prescribed commute loops. Animate
+  the rider, show route phases and blocked approaches, implement manual jam
+  controls and Auto-Shift, and connect moving jams to the fixture provider.
+  Add the active-jam route-comparison panel.
+
+Stage 5: Presentation and usability
+  Add About Project and the three-minute guide. Refine long location labels,
+  map readability, responsive layout, control explanations, and demo wording.
+
+Stage 6: Container delivery
+  Create the root and application-folder Dockerfiles, Nginx configuration,
+  Compose service, ignore files, and build/run helpers. Prepare registry and
+  archive distribution options with appropriate target architectures.
+
+Stage 7: Acceptance and handoff
+  Exercise the data, routing, interface, and container checks below. Prepare
+  the source repository, README, complete build, image, and demonstration guide.
+  Record actual verification results separately from the intended requirements.
+
+
+17. ACCEPTANCE CRITERIA
+
+Initial state and calculations
+  The app will start populated, paused, at the fixed 09:00 IST epoch with
+  Bagalur selected and jammed, AQI layers selected, and cycle 1.
+  Default AQIs will be 248, 185, 135, and 78 in catalogue order.
+  Default stress scores will be 83, 63, 47, and 28 in that order.
+  Rounded mean AQI will be 162 and the affected-location count will be 1.
+  AQI boundaries and the noise/stress alert boundaries will classify correctly.
+
+Monitoring coherence
+  Map, details, ranking, table, alerts, and export will agree on the snapshot.
+  All required parameters will be accessible with their units.
+  Layer changes will update values and legends without changing congestion.
+  Charts will contain 13 samples and end at the current selected reading.
+  Scenario changes will apply the specified multipliers and reset the data clock.
+
+Congestion and routing
+  Each of the four jam buttons will load its fixture and route configuration.
+  The active jam will rank highest in its step-zero Baseline fixture.
+  Station inspection will not accidentally switch the route comparison.
+  Auto-Shift will visit all four jams in order and wrap back to Bagalur.
+  With Auto-Shift paused, the rider will keep using the same jam configuration.
+  A completed animation loop will not cause duplicate cycle transitions.
+  Loop-completion dispatch must be an explicit, once-per-loop event rather
+  than an unguarded side effect inside a React state-updater function.
+  Global Pause will stop both the rider and data updates.
+  Show/Hide Path will change the overlay without changing readings.
+  Direct and detour comparisons will follow the current active-jam readings.
+
+Controls and presentation
+  Step will add exactly five simulated minutes while paused.
+  Reset will restore the defined shared-state defaults.
+  Full page reload will restore the complete startup presentation.
+  Long names, labels, legends, and controls will remain usable at desktop sizes
+  of 1366 by 768 and 1440 by 900, and at a representative narrow screen size.
+  Dialogs, selection controls, and core actions will be keyboard usable.
+  Demo data and illustrative-map explanations will remain apparent.
+
+Export and packaging
+  CSV will contain four correctly quoted rows and the current snapshot values.
+  The TypeScript/build and configured lint checks will pass.
+  A fresh Docker build will serve the app through Nginx on host port 8080.
+  The health check will become healthy when Nginx serves the bundle.
+  Browser refresh will load the application correctly.
+  Compose and the saved-image load/run path will be exercised.
+  A loaded image will run the demonstration without external data services.
+  The declared image architecture will match the intended recipient machine.
+
+Verification will combine focused calculation and state-transition checks with
+manual inspection of the browser and container experience. Record results
+against these criteria during the final implementation stage.
+
+This section will define targets, not evidence that each target has passed.
+The project report will distinguish design requirements, verified implementation
+results, and remaining limitations. Statements about Docker runtime, browser
+accessibility, or achieved health benefits will require their own evidence.
+A successful frontend build will not, by itself, verify all of those claims.
+
+
+18. DELIVERABLES AND FUTURE DEVELOPMENT
+
+The initial project will deliver:
+
+- A working single-page Urban Health Monitoring System.
+- Four-station synthetic data, deterministic history, and scenario controls.
+- A transparent Urban Stress Index, rankings, alerts, and station comparison.
+- An interconnected map with animated adaptive commuter routing across four
+  congestion configurations.
+- Direct-path and detour comparisons with clearly illustrative benefits.
+- CSV download, About Project, and an integrated presentation guide.
+- Source code, dependency lockfile, and the planned module structure.
+- Dockerfiles, Nginx configuration, Compose definition, and helper scripts.
+- A shareable Docker image and a portable image archive.
+- A concise README for operation and a record of the verification performed.
+
+After this prototype, future work may replace the fixture provider with logged
+or live station data, validate the stress-index assumptions, introduce genuine
+geographic routing, and assess routes using suitable measurements along each
+path. Additional work may include extra pollutants, wind and rainfall context,
+predictive models evaluated on real datasets, and the wider water-quality and
+public-health scope from Phase 1.
+
+Those extensions will require their own data quality, privacy, calibration,
+and evaluation decisions. They will not be dependencies for completing the
+four-station academic prototype defined in this plan.
+
+
+APPENDIX A. COMPLETE CONGESTION FIXTURES
+
+The following tables will define the planned Baseline inputs for all rounds.
+Use the station order Bagalur, Galleria, Phoenix, Hebbal throughout. Apply
+scenario transforms and time variation after choosing the round's fixture.
+
+Round 1: Bagalur jam
+
+Parameter                       Bagalur    Galleria     Phoenix      Hebbal
+AQI                                 248         185         135          78
+PM2.5 (µg/m³)                       104          78          68          35
+PM10 (µg/m³)                        215         145         120          60
+CO (mg/m³)                          1.8         1.2         0.9         0.5
+LAeq (dB(A))                       82.5        76.5          70          62
+SPL (dB(A))                        83.5        77.5        71.5        63.5
+Lmax (dB(A))                         92          86          80          72
+L10 (dB(A))                          86          80          74          66
+L90 (dB(A))                          76          70          64          56
+Honks (events/min)                   18          12           9           4
+Vehicles/min                         68          52          40          26
+Mean speed (km/h)                    12          18          22          32
+Queue length (m)                    220         140          95          45
+Waiting time (s)                    160         110          75          35
+Temperature (°C)                     32          31          30          28
+Humidity (%)                         55          58          60          65
+Derived stress score                 83          63          47          28
+
+Round 2: Galleria jam
+
+Parameter                       Bagalur    Galleria     Phoenix      Hebbal
+AQI                                 130         252         140          75
+PM2.5 (µg/m³)                        65         108          70          32
+PM10 (µg/m³)                        115         220         125          58
+CO (mg/m³)                          0.8         1.9         0.9         0.5
+LAeq (dB(A))                       69.5        83.5          71          61
+SPL (dB(A))                          71        84.5          72        62.5
+Lmax (dB(A))                         79          93          81          71
+L10 (dB(A))                          73          87          75          65
+L90 (dB(A))                          63          77          65          55
+Honks (events/min)                    8          19           9           4
+Vehicles/min                         38          70          42          25
+Mean speed (km/h)                    24          11          22          33
+Queue length (m)                     85         230          95          40
+Waiting time (s)                     70         165          75          30
+Temperature (°C)                     30          32          30          28
+Humidity (%)                         60          56          60          65
+Derived stress score                 45          85          49          27
+
+Round 3: Phoenix jam
+
+Parameter                       Bagalur    Galleria     Phoenix      Hebbal
+AQI                                 138         125         246          72
+PM2.5 (µg/m³)                        68          60         105          30
+PM10 (µg/m³)                        120         110         215          55
+CO (mg/m³)                          0.9         0.8         1.8         0.5
+LAeq (dB(A))                         70          68          82        60.5
+SPL (dB(A))                        71.5        69.5          83          62
+Lmax (dB(A))                         80          78          92          70
+L10 (dB(A))                          74          72          86          64
+L90 (dB(A))                          64          62          76          54
+Honks (events/min)                    9           7          18           3
+Vehicles/min                         40          36          66          24
+Mean speed (km/h)                    22          25          12          34
+Queue length (m)                     90          75         215          35
+Waiting time (s)                     75          65         155          30
+Temperature (°C)                     30          29          32          28
+Humidity (%)                         60          62          55          65
+Derived stress score                 48          43          82          26
+
+Round 4: Hebbal jam
+
+Parameter                       Bagalur    Galleria     Phoenix      Hebbal
+AQI                                 132         128         115         242
+PM2.5 (µg/m³)                        66          62          56         102
+PM10 (µg/m³)                        118         112         100         210
+CO (mg/m³)                          0.9         0.8         0.7         1.7
+LAeq (dB(A))                         69        68.5          66        81.5
+SPL (dB(A))                        70.5          70        67.5        82.5
+Lmax (dB(A))                         79          78          76          91
+L10 (dB(A))                          73          72          70          85
+L90 (dB(A))                          63          62          60          75
+Honks (events/min)                    8           7           6          17
+Vehicles/min                         38          37          32          65
+Mean speed (km/h)                    23          24          27          13
+Queue length (m)                     85          80          65         210
+Waiting time (s)                     70          68          55         150
+Temperature (°C)                     30          29          29          32
+Humidity (%)                         60          62          62          55
+Derived stress score                 45          44          39          80
+
+
+
+APPENDIX B. ROUTE GEOMETRY
+
+These coordinates will specify illustrative animation paths on the logical
+canvas. They will not represent metres, surveyed routes, or travel durations.
+Interpolate segment lengths from the successive coordinates.
+
+Bagalur jam
+  Loop: (60,180) -> (175,180) -> (175,320) -> (720,320) -> (720,180)
+        -> (880,180) -> (880,460) -> (60,460) -> (60,180)
+  Abandoned approach: (175,180) to (480,180)
+  Barrier: (205,180)
+  Main bypass: West Connector Link and Central Park Bypass
+
+Galleria jam
+  Loop: (240,180) -> (240,320) -> (480,320) -> (480,460)
+        -> (880,460) -> (880,180) -> (240,180)
+  Abandoned approach: (240,320) to (240,460)
+  Barrier: (240,390)
+  Main bypass: Central Park Bypass and Central Avenue
+
+Phoenix jam
+  Loop: (240,180) -> (480,180) -> (480,320) -> (880,320) -> (880,180)
+        -> (880,460) -> (240,460) -> (240,180)
+  Abandoned approach: (480,180) to (720,180)
+  Barrier: (600,180)
+  Main bypass: Central Avenue, Central Bypass, and Outer East Expressway
+
+Hebbal jam
+  Loop: (240,460) -> (480,460) -> (480,320) -> (880,320) -> (880,460)
+        -> (880,180) -> (240,180) -> (240,460)
+  Abandoned approach: (480,460) to (720,460)
+  Barrier: (600,460)
+  Main bypass: Central Avenue, Central Bypass, and Outer East Expressway
+
+Draw return connectors wherever necessary to keep the fictional loop legible.
+An automatically closed SVG path must follow the same waypoints as the rider.
+
+
+END OF PROJECT PLAN
