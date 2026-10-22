@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────
 
 import { Reading, LocationId, Scenario } from '../types';
-import { BASELINE_READINGS } from './baseline';
+import { BASELINE_READINGS, BASELINE_READINGS_BY_JAM } from './baseline';
 
 // ── Helpers ─────────────────────────────────────
 
@@ -148,14 +148,16 @@ function enforceConstraints(r: RawFields): RawFields {
 
 /**
  * Returns the scenario-adjusted anchor values for a given location.
- * Baseline returns the original values; rush-hour and improved apply
- * their respective transformation functions and then enforce constraints.
+ * Takes into account the currently active jammed location so real-time shifts
+ * dynamically adjust which station experiences the severe bottleneck!
  */
 export function applyScenario(
   locationId: LocationId,
   scenario: Scenario,
+  jamLocationId: LocationId = 'bagalur-cross',
 ): RawFields {
-  const base = BASELINE_READINGS[locationId];
+  const dataset = BASELINE_READINGS_BY_JAM[jamLocationId] || BASELINE_READINGS;
+  const base = dataset[locationId] || BASELINE_READINGS[locationId];
 
   switch (scenario) {
     case 'baseline':
@@ -174,12 +176,13 @@ export function applyScenario(
  */
 export function applyScenarioAll(
   scenario: Scenario,
+  jamLocationId: LocationId = 'bagalur-cross',
 ): Record<LocationId, RawFields> {
   return {
-    'bagalur-cross': applyScenario('bagalur-cross', scenario),
-    'phoenix-mall': applyScenario('phoenix-mall', scenario),
-    'galleria-mall': applyScenario('galleria-mall', scenario),
-    'hebbal-flyover': applyScenario('hebbal-flyover', scenario),
+    'bagalur-cross': applyScenario('bagalur-cross', scenario, jamLocationId),
+    'galleria-mall': applyScenario('galleria-mall', scenario, jamLocationId),
+    'phoenix-mall': applyScenario('phoenix-mall', scenario, jamLocationId),
+    'hebbal-flyover': applyScenario('hebbal-flyover', scenario, jamLocationId),
   };
 }
 

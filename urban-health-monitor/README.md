@@ -1,7 +1,7 @@
 # Urban Health Monitoring System (UHMS)
 
 > **College Project Demonstration Prototype**  
-> Interactive 4-location urban environmental monitoring dashboard with real-time commuter health navigation. Demonstrates how continuous air quality, acoustic noise, and traffic telemetry enable adaptive routing to avoid pollution and noise hotspots.
+> Interactive 4-location urban environmental monitoring dashboard with real-time commuter health navigation. Demonstrates how continuous air quality, acoustic noise, and traffic telemetry enable adaptive routing through an interconnected street network to avoid shifting pollution and noise hotspots.
 
 ---
 
@@ -13,7 +13,7 @@
 
 ### Setup & Run
 ```bash
-# Navigate to the application directory
+# Navigate to application directory
 cd urban-health-monitor
 
 # Start local development server
@@ -31,47 +31,52 @@ npm run preview
 
 ---
 
-## 2. Hotspot Vulnerability Ranking (Worst to Cleanest)
+## 2. Interconnected City Grid & Multi-Path Network
 
-The four monitored locations are ranked in order of overall environmental stress:
+The city map features an interconnected road grid with multiple parallel avenues and corridors:
+- **Horizontal Corridors**:
+  - `North Arterial (y=180)`: Connects Bagalur Cross (`UHMS-01`) to Phoenix Mall (`UHMS-02`).
+  - `Central Park Bypass (y=320)`: Low-emission eco-corridor running past botanical parks.
+  - `South Parkway (y=460)`: Connects Galleria Mall (`UHMS-03`) to Hebbal Flyover (`UHMS-04`).
+- **Vertical Corridors**:
+  - `Outer West Lane (x=100)` & `West Connector Link (x=175)`.
+  - `West Link Corridor (x=240)`: Main commercial connector.
+  - `Mid-West Eco Avenue (x=360)`.
+  - `Central Avenue Arterial (x=480)`: Primary high-capacity median corridor.
+  - `Mid-East Botanical Link (x=600)`.
+  - `East Corridor (x=720)`: Transit connector.
+  - `Outer East Expressway (x=880)`: High-speed peripheral bypass.
 
-| Rank | Station | Full Name | Station Type | Baseline AQI | Noise $L_{Aeq}$ | Stress Score | Alert Status |
-|:---:|:---:|:---|:---|:---:|:---:|:---:|:---:|
-| **#1 Worst** | `UHMS-01` | **Bagalur Cross** | Major Junction Corridor | **248** (Poor) | **82.5 dB(A)** | **83 / 100** | 🔴 **Active (3 Triggers)** |
-| **#2 Elevated** | `UHMS-03` | **Near Galleria Mall** | Mall Surroundings & Arterial | **185** (Moderate) | **76.5 dB(A)** | **63 / 100** | 🟠 Elevated Stress |
-| **#3 Moderate** | `UHMS-02` | **Phoenix Mall of Asia** | Mall Access / Service Road | **135** (Moderate) | **70.0 dB(A)** | **47 / 100** | 🟡 Moderate |
-| **#4 Cleanest** | `UHMS-04` | **Hebbal Flyover entry** | Flyover Approach Corridor | **78** (Satisfactory) | **62.0 dB(A)** | **28 / 100** | 🟢 **Safe / Clean** |
+Because every junction is linked by multiple parallel streets, commuters have viable alternative routes for any travel origin and destination.
 
 ---
 
-## 3. Dynamic Commuter Rerouting Simulation
+## 3. Dynamic Real-Time Decision Making (Shifting Hotspots)
 
-When the **Start / Play** button is pressed, the simulation triggers a moving **Person on Motorcycle / Scooter**:
-1. **The Origin & Approach**: The commuter travels East on the North Arterial ($y=180$) toward East Terminal.
-2. **Early Sensor Warning**: At $x=175$ (65 metres before the junction), the UHMS IoT network triggers a critical advisory:
-   `"⚠️ SENSOR ADVISORY: Bagalur Cross AQI 248 (Severe), Noise 82.5 dB! Abandons direct route."`
-3. **Route Abandonment**:
-   - The direct path into Bagalur Cross is marked with an **abandoned red dashed line**, hazard barriers (🚫 / ✕), and warning badges.
-4. **Adaptive Clean Detour**:
-   - The commuter turns South onto the **Central Park Bypass Avenue** ($y=320$).
-   - Traverses the clean green corridor past botanical reserves (AQI ~75, Noise ~64 dB(A)).
-   - Connects to the East Destination safely.
-5. **Continuous Loop**:
-   - Loops smoothly via the South Parkway and back to the West Corridor, repeating continuously until paused.
-   - **Data updates every 5 seconds** while the bike glides in real-time.
-   - **Health Impact**: Avoids **65% of particulate exposure** and **18.5 dB(A) of hearing strain**, with zero idling delay.
+Rather than static congestion at one single point, the simulation showcases how **traffic and pollution bottlenecks shift dynamically across cycles**, driving real-time rerouting:
+
+| Round | Active Jammed Hotspot | Observed Conditions | Abandoned Path | Chosen Adaptive Detour | Commuter Health Benefit |
+|:---:|:---|:---|:---|:---|:---|
+| **Round 1** | **Bagalur Cross** | AQI 248, Noise 82.5 dB, 220m Queue | Direct North Arterial into Bagalur | **Central Park Bypass (y=320)** | **-65% AQI**, -18.5 dB(A) noise |
+| **Round 2** | **Near Galleria Mall** | AQI 252, Noise 83.5 dB, 230m Queue | West Link into Galleria Mall | **Central Avenue Arterial (x=480)** | **-68% toxic smoke**, 0m idle queue |
+| **Round 3** | **Phoenix Mall of Asia** | AQI 246, Noise 82.0 dB, 215m Queue | North Arterial past service gate | **Central Bypass & Outer Expressway** | **-60% AQI**, 8 min delay saved |
+| **Round 4** | **Hebbal Flyover** | AQI 242, Noise 81.5 dB, 210m Queue | South Parkway into ramp backup | **Central Ave to Outer Expressway** | **-62% AQI**, smooth flow @ 34 km/h |
+
+### Interactive Control Modes
+- **Auto-Shift Mode (`ON` by default)**: When the commuter on the motorcycle finishes one complete loop cycle, the network automatically advances to the next hotspot jam, updating all sensor readings, alerts, and map barriers!
+- **Manual Hotspot Selector Buttons**: Click `1. Bagalur Jam`, `2. Galleria Jam`, `3. Phoenix Jam`, or `4. Hebbal Jam` above the map to demonstrate any specific scenario on demand for your teacher!
 
 ---
 
 ## 4. Key Interactive Features
 
-- **Interactive City Grid Map (SVG)**: Stylized road network with North Arterial, Central Park Bypass, and South Parkway.
-- **Synchronized Map Layers**: Seamless switching across **AQI**, **Noise**, **PM2.5**, **PM10**, **Traffic (Queue)**, and **Urban Stress Index**.
-- **Live Commuter Telemetry HUD**: Real-time ticker showing the rider's active phase, live hazard notifications, and accumulated health exposure savings.
-- **Route Comparison Panel**: Side-by-side analysis of the *Direct Path (Abandoned)* vs. *Adaptive Green Detour (Chosen)*.
-- **Hotspot Vulnerability Bar**: Clickable ranking pill-bar to immediately inspect any hotspot.
-- **Transparent Stress Index**: Fully disclosed weights (45% Air, 35% Noise, 20% Traffic) with component score bars.
-- **Comparison Table & CSV Export**: Download complete 4-station snapshots formatted for municipal reports.
+- **Interactive City Grid Map (SVG)**: Stylized road grid with street names, animated motorcycle rider with turning angle and headlamp, dynamic radar pulse, roadblock barriers (✕), and glowing green clean detours.
+- **Synchronized Map Layers**: Instant switching across **AQI**, **Noise**, **PM2.5**, **PM10**, **Traffic (Queue)**, and **Urban Stress Index**.
+- **Live Commuter Telemetry HUD**: Real-time ticker showing active hazard warnings, detour route names, and accumulated health exposure savings.
+- **Dynamic Hotspot Stress Ranking Bar**: Live sorted cards from `#1 Peak Stress` to `#4 Clean` with an animated `⚠️ JAMMED` indicator on the active bottleneck.
+- **Route Comparison Panel**: Side-by-side analysis of the *Direct Path (Abandoned)* vs. *Adaptive Green Detour (Chosen)* updated in real-time for whichever hotspot is currently jammed.
+- **Transparent Stress Index**: Disclosed weights (45% Air, 35% Noise, 20% Traffic) with component score progress bars.
+- **Comparison Table & CSV Export**: Download current 4-station snapshots formatted for municipal reports.
 - **3-Minute Presentation Guide**: Built-in cue card modal (`Presentation Script` button in header) with timed talking points for college reviews.
 
 ---

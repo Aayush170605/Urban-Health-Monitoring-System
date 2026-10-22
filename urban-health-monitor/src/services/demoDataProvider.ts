@@ -190,8 +190,9 @@ export function generateReading(
   scenario: Scenario,
   step: number,
   baseTimestamp: string = BASE_TIMESTAMP,
+  jamLocationId: LocationId = 'bagalur-cross',
 ): Reading {
-  const anchor = applyScenario(locationId, scenario);
+  const anchor = applyScenario(locationId, scenario, jamLocationId);
   const locSeed = LOCATION_SEEDS[locationId];
   const timestamp = stepToTimestamp(step, baseTimestamp);
 
@@ -232,10 +233,11 @@ export function generateAllReadings(
   scenario: Scenario,
   step: number,
   baseTimestamp: string = BASE_TIMESTAMP,
+  jamLocationId: LocationId = 'bagalur-cross',
 ): Record<LocationId, Reading> {
   const result = {} as Record<LocationId, Reading>;
   for (const locId of LOCATION_IDS) {
-    result[locId] = generateReading(locId, scenario, step, baseTimestamp);
+    result[locId] = generateReading(locId, scenario, step, baseTimestamp, jamLocationId);
   }
   return result;
 }
@@ -248,6 +250,7 @@ export function generateHistory(
   scenario: Scenario,
   currentStep: number,
   baseTimestamp: string = BASE_TIMESTAMP,
+  jamLocationId: LocationId = 'bagalur-cross',
 ): Record<LocationId, Reading[]> {
   const result = {} as Record<LocationId, Reading[]>;
   for (const locId of LOCATION_IDS) {
@@ -259,7 +262,7 @@ export function generateHistory(
 
   for (let s = startStep; s <= currentStep; s++) {
     for (const locId of LOCATION_IDS) {
-      result[locId].push(generateReading(locId, scenario, s, baseTimestamp));
+      result[locId].push(generateReading(locId, scenario, s, baseTimestamp, jamLocationId));
     }
   }
 

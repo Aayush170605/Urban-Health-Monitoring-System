@@ -106,6 +106,8 @@ export interface DerivedReading {
 
 export interface AppState {
   selectedLocationId: LocationId;
+  activeJamLocationId: LocationId;
+  commuterCycle: number;
   activeMapLayer: MapLayer;
   activeTrendMetric: TrendMetric;
   scenario: Scenario;
@@ -121,6 +123,8 @@ export interface AppState {
 
 export type AppAction =
   | { type: 'SELECT_LOCATION'; locationId: LocationId }
+  | { type: 'SET_JAM_LOCATION'; locationId: LocationId }
+  | { type: 'NEXT_COMMUTE_CYCLE' }
   | { type: 'SET_MAP_LAYER'; layer: MapLayer }
   | { type: 'SET_TREND_METRIC'; metric: TrendMetric }
   | { type: 'SET_SCENARIO'; scenario: Scenario }

@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────
 
 import React, { useEffect } from 'react';
-import { X, Mic, CheckCircle, Navigation, MapPin } from 'lucide-react';
+import { X, Mic } from 'lucide-react';
 
 interface Props {
   onClose: () => void;
@@ -23,7 +23,7 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
       <div
         className="dialog-content"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: 680, padding: 28 }}
+        style={{ maxWidth: 700, padding: 28 }}
       >
         <button
           onClick={onClose}
@@ -66,11 +66,11 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
                 0:00 - 0:45
               </span>
               <strong style={{ fontSize: 14, color: '#162C36' }}>
-                1. Context &amp; Hotspot Vulnerability Ranking
+                1. Context &amp; Interconnected City Grid
               </strong>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.5 }}>
-              "Urban environmental data is usually delayed and disconnected. Our Phase 2 study monitored four key hotspots in North Bengaluru. As shown in our top ranking, <strong>Bagalur Cross is the most severely stressed</strong> with AQI 248 and 82.5 dB noise, followed by Galleria Mall and Phoenix Mall, while <strong>Hebbal Flyover is our cleanest approach</strong>."
+              "Urban environmental data is usually delayed and disconnected. Our Phase 2 prototype monitors four critical hotspots in North Bengaluru across an interconnected street grid featuring multiple parallel corridors (North Arterial, Central Park Bypass, and South Parkway)."
             </p>
           </div>
 
@@ -81,11 +81,11 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
                 0:45 - 1:30
               </span>
               <strong style={{ fontSize: 14, color: '#162C36' }}>
-                2. Transparent Urban Stress Index &amp; Map Layers
+                2. Transparent Urban Stress Index &amp; Layer Inspection
               </strong>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.5 }}>
-              "Click on Bagalur Cross to reveal its active alert. In the detail panel, open <em>'How is this score calculated?'</em> to demonstrate our transparent formula combining <strong>Air (45%)</strong>, <strong>Noise (35%)</strong>, and <strong>Traffic (20%)</strong>. Then toggle between the <strong>Noise</strong>, <strong>Queue</strong>, and <strong>Stress</strong> layers to prove synchronized multi-station monitoring."
+              "Inspect Bagalur Cross or any station. In the detail panel, open <em>'How is this score calculated?'</em> to demonstrate our transparent formula combining <strong>Air Quality (45%)</strong>, <strong>Acoustic Noise (35%)</strong>, and <strong>Traffic Queuing (20%)</strong>. Then toggle between map layers (Noise, PM2.5, Queue, Stress) to show multi-parameter situational awareness."
             </p>
           </div>
 
@@ -96,11 +96,11 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
                 1:30 - 2:30
               </span>
               <strong style={{ fontSize: 14, color: '#166534' }}>
-                3. Live Commuter Simulation &amp; Dynamic Route Abandonment
+                3. Live Commuter Simulation with Shifting Real-Time Bottlenecks
               </strong>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: '#14532D', lineHeight: 1.5 }}>
-              "Press the <strong>Start button</strong>! Watch how the person on the bike moves along the North Corridor. As the sensor network warns of toxic conditions ahead at Bagalur Cross, the commuter <strong>actively abandons the direct red hazard route</strong> and diverts south onto the clean Central Park Bypass. This continuous loop proves how real-time IoT alerts protect citizens' lungs and ears."
+              "Press <strong>Start</strong>! Watch the commuter on the bike navigate the city. In Round 1, Bagalur Cross is jammed: the commuter receives an early alert, <strong>abandons the direct red route</strong>, and diverts via Central Park Bypass. When the round completes, the congestion <strong>dynamically shifts</strong> to Galleria Mall or Phoenix Mall—and the commuter immediately adapts by choosing an entirely different clean corridor! You can also click the quick buttons above the map to demonstrate any specific hotspot bottleneck on demand."
             </p>
           </div>
 
@@ -111,11 +111,11 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
                 2:30 - 3:00
               </span>
               <strong style={{ fontSize: 14, color: '#162C36' }}>
-                4. Scenario Playback &amp; CSV Export
+                4. Health Impact Verdict &amp; CSV Export
               </strong>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.5 }}>
-              "Switch scenario to <strong>Rush Hour</strong> to demonstrate network-wide escalation, or <strong>Improved conditions</strong>. Finally, click <strong>'Export current readings'</strong> to demonstrate CSV data generation for municipal authorities, and click <strong>Reset</strong> for Q&amp;A."
+              "Scroll down to the <strong>Route Comparison Panel</strong> to demonstrate that dynamic rerouting avoids up to 65% of inhaled pollutants and 20 dB of noise strain. Finally, click <strong>'Export current readings'</strong> to generate municipal CSV records, and click <strong>Reset</strong> for Q&amp;A."
             </p>
           </div>
         </div>
@@ -134,7 +134,7 @@ export const PresenterScriptDialog: React.FC<Props> = ({ onClose }) => {
               border: 'none',
             }}
           >
-            Got it, ready to present!
+            Ready to present!
           </button>
         </div>
       </div>
